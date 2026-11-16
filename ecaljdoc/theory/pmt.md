@@ -88,7 +88,7 @@ $$
 
 で、その定義域となる関数空間の条件は次の二つ:
 
-- <span class="clfix">(A) MT 内で $\psi_{2p,a}=\psi_{0p}$（厳密な条件。実際には次の (A′) に緩める）</span>
+- (A) MT 内で $\psi_{2p,a}=\psi_{0p}$（厳密な条件。実際には次の (A′) に緩める）
 - (A′) MT 内で $\psi_{2p,a}\approx\psi_{0p}$（低い $l$・低い周波数の部分が合えばよい）
 - (B) MT 球面で $\psi_{1p,a}$ と $\psi_{2p,a}$ の値と傾きが一致
 
@@ -101,7 +101,7 @@ F_{2i,a}(\mathbf r) = \sum_{k\le k_{\max,a},\,l\le l_{\max,a}} C^i_{akL} P_{akL}
 F_{1i,a}(\mathbf r) = \sum_{kL} C^i_{akL} \widetilde P_{akL}(\mathbf r) \tag{4}
 $$
 
-$P_{akL}$ は Laguerre 多項式 $\times\, Y_L$（<del class="clfix">smooth Hankel の頭の部分にはそれ自身も加える</del><span class="clfix">MTO の中心のサイト（頭の部分）では、展開関数にその smooth Hankel 自身も加える</span>）。$\widetilde P_{akL}$ は $P_{akL}$ と球面で値・傾きが合う部分波 $\phi_{al},\dot\phi_{al}$ の一次結合。
+$P_{akL}$ は Laguerre 多項式 $\times\, Y_L$（MTO の中心のサイト（頭の部分）では、展開関数にその smooth Hankel 自身も加える）。$\widetilde P_{akL}$ は $P_{akL}$ と球面で値・傾きが合う部分波 $\phi_{al},\dot\phi_{al}$ の一次結合。
 切断の $k_{\max,a}$、$l_{\max,a}$ が入力の `kmxa`、`lmxa`。
 
 <div class="note">
@@ -224,7 +224,7 @@ $\circ$ は同じ MT 球の中だけの積分（全サイトの和をとる）�
 
 式 (13) における近似を評価する。差は $(\bar n_0-\bar n_2)\circ v\circ(\bar m_1-\bar m_2)+(\bar n_1-\bar n_2)\circ v\circ(\bar m_0-\bar m_2)$ である。第 1 項に着目する（第 2 項も同じ）。
 $\bar m_1-\bar m_2$ の多重極は、`lmxl` までのすべての $L$ で 0 である（式 11 で、$G_{aL}$ の多重極を 1 に規格化して $Q_{aL}[m_1-m_2]$ を足したため。`lmxl` より上の $L$ の成分は持たない）。したがって $v\circ(\bar m_1-\bar m_2)$ が作るポテンシャルは MT の外では 0 で、その $L$ は `lmxl` 以下である。ただし MT の中ではこのポテンシャルは 0 ではない。その大きさは多重極ではなく、MT の中での電荷の動径分布の違い（たとえば中心近くに局在した $G_{aL}$ と、$\bar m_1$ の分布の違い）で決まり、中心近くでは小さいとは限らない。一方、MT 端に近づけば 0 に近づくことは保証される。多重極が 0 なのでポテンシャルは MT の外に出ず、MT 球面で値も傾きも 0 になる（式 8 の $(1'-2')$ と同じ性質）。
-一方、$\bar n_0-\bar n_2$ は (A′) のずれで、高い $L$ の成分が主である。<del class="clfix">$v$ は球対称なので、この高い $L$ の成分はポテンシャルと結合せず、寄与しない。</del><span class="clfix">$v$ は $L$ を保ち（回転で不変）、$v\circ(\bar m_1-\bar m_2)$ は $L\le$ `lmxl` の成分しか持たないので、$\bar n_0-\bar n_2$ のうち $L>$ `lmxl` の成分はこれと直交し、寄与しない。</span>
+一方、$\bar n_0-\bar n_2$ は (A′) のずれで、高い $L$ の成分が主である。$v$ は $L$ を保ち（回転で不変）、$v\circ(\bar m_1-\bar m_2)$ は $L\le$ `lmxl` の成分しか持たないので、$\bar n_0-\bar n_2$ のうち $L>$ `lmxl` の成分はこれと直交し、寄与しない。
 寄与するのは $\bar n_0-\bar n_2$ の低い $L$ の成分だけで、それは $n_2$ が $n_0$ を再現しきれない部分（式 (4) の `kmxa` による打ち切り）である。したがって差は、その打ち切りに比例する項だけである。さらに $\bar n_0-\bar n_2$ は MT 球面の近くで大きく（§3 の分離形の誤差）、ポテンシャルのほうは MT 球面で値も傾きも 0 なので、積の積分はさらに小さくなる。
 
 </div>
@@ -298,7 +298,7 @@ $$
 E_{\rm xc}[n^{\rm Zcv}] = E_{\rm xc}[n^{\rm Zcv}_0] + \sum_a E_{\rm xc}[n^{\rm Zcv}_{1,a}] - \sum_a E_{\rm xc}[n^{\rm Zcv}_{2,a}] \tag{17}
 $$
 
-$E^{\rm core}_{\rm k}$ は コアの運動エネルギー（<del class="clfix">定数</del><span class="clfix">`lfoca`=1 の凍結したコアでは定数。`lfoca`=0 ではコアを解き直すたびに求め直す</span>）、$T_{ij}$ は式 (7)。$E_{\rm es}$ は式 (13) の最後の式（分離形）で、$\bar n=\mathcal M[n^{\rm Zcv}]$ を使って評価する（原子核の自己相互作用の定数は除く）。
+$E^{\rm core}_{\rm k}$ は コアの運動エネルギー（`lfoca`=1 の凍結したコアでは定数。`lfoca`=0 ではコアを解き直すたびに求め直す）、$T_{ij}$ は式 (7)。$E_{\rm es}$ は式 (13) の最後の式（分離形）で、$\bar n=\mathcal M[n^{\rm Zcv}]$ を使って評価する（原子核の自己相互作用の定数は除く）。
 $n^{\rm Zcv}$ と $\bar n^{\rm Zcv}$ の各成分は式 (14)、(15)。第 0 成分は実空間のメッシュ（カットオフ `gmax`）で、MT の中は動径メッシュで計算する。
 基底を固定し、規格化 $\sum_{ij}\alpha^{i*}_pO_{ij}\alpha^j_p=1$ を保って式 (16) を $\alpha^{i*}_p$ で変分すると、一般化固有値問題になる:
 
@@ -387,7 +387,7 @@ $$
 
 である。$\sigma$、$\tau$ は $L=(l,m)$ のうち $l$ だけによる。$\pi$ の第 1 項は式 (21) の $\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aM}$ を通した多重極の寄与で、$Q_{akk'LL'M}$ は $\widetilde P\widetilde P-PP$ の $M$ 次の多重極である。
 局所軌道 Lo（`pz` の 10 の位が 0 のもの）は、MT 端で値も傾きも 0 になるように作るので、第 1 成分だけを持つ（第 0、第 2 成分は 0）。Lo を含む行列要素は MT の項だけになる。
-$O_{ij}$、$T_{ij}$ は、<del class="clfix">式 (24) の</del><span class="clfix">式 (23) の 1 中心の項（式 24）で、</span> $\widetilde P_{akL}$ の代わりに Lo の動径関数 $\times\,Y_L$ を使い、Lo の側の $P$ の項を 0 としたものである。
+$O_{ij}$、$T_{ij}$ は、式 (23) の 1 中心の項（式 24）で、 $\widetilde P_{akL}$ の代わりに Lo の動径関数 $\times\,Y_L$ を使い、Lo の側の $P$ の項を 0 としたものである。
 $V_{ij}$ では、Lo に第 0、第 2 成分が無いので、ポテンシャルを調和関数 $\mathcal Y_L$ の分だけずらす自由が無い。そのため式 (20) の $V_{1,a}$（MT 球面の値が $\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}R_a^l$）ではなく、MT 球面の値を実際の静電ポテンシャルの値（第 0 成分から決まる）に合わせたポテンシャルを使う。
 
 <div class="note">
@@ -417,14 +417,14 @@ $$
 (\nabla^2+\epsilon)\,h_0(\mathbf r) = -4\pi g_0(\mathbf r),\quad g_0\propto e^{-r^2/R_{\rm SM}^2},\qquad h_L = \mathcal Y_L(-\nabla)h_0 \tag{25}
 $$
 
-$R_{\rm SM}\to0$ で普通の Hankel 関数 $e^{-\kappa r}/r$（$\epsilon=-\kappa^2$）になる。<del class="clfix">原点で発散しない。</del><span class="clfix">$R_{\rm SM}$ が有限なら $h_0$ は原点で発散しない。</span>
+$R_{\rm SM}\to0$ で普通の Hankel 関数 $e^{-\kappa r}/r$（$\epsilon=-\kappa^2$）になる。$R_{\rm SM}$ が有限なら $h_0$ は原点で発散しない。
 
 - 部分波 $\phi_{al}$、$\dot\phi_{al}$ は、MT の中の実際のポテンシャルの球対称部分で動径方程式を解いて作る。このポテンシャルは、第 1 成分の電荷のつくる静電ポテンシャルを、MT 球面の値（第 0 成分から決まる）に合わせて解いたものに $v^{\rm xc}_{1,a}$ を足したもの（コードの `v1out`）で、式 (20) の第 1 成分 $V_{1,a}$ とは境界値が違う。部分波は基底の材料なので、変分の整合性には影響しない。MT 端での対数微分値は `lmfa` の球対称原子のものに固定する（§2 の注）。
-- Lo の部分波も、MT 端での対数微分値を `lmfa` の値に固定して解く。<del>Lo の部分波は、深い準位（semicore）ならその重心で解き、そのときの $\phi_{al}$ はフェルミエネルギーでとる</del>
+- Lo の部分波も、MT 端での対数微分値を `lmfa` の値に固定して解く。
 - MTO の $R_{\rm SM}$ と $\epsilon$ は簡単な規則でよい（$R_{\rm SM}=R_a/2$ など）
   - 足りない分は APW が補う。$\epsilon$ への全エネルギーの依存は弱く、APW を増やすほど弱くなる
   - フルポテンシャル LMTO の難題だった「MTO のパラメータの選び方」が実質的に無くなる
-- 第 1 成分・第 2 成分の <del class="clfix">$l_{\max,a}$</del><span class="clfix">`lmxl`（既定は $l_{\max,a}$ = `lmxa`）</span> より上は密度でも捨てる（成分どうしの積で $2l_{\max,a}$ まで出るが、固有関数をすでに切っているので意味が無い）
+- 第 1 成分・第 2 成分の `lmxl`（既定は $l_{\max,a}$ = `lmxa`） より上は密度でも捨てる（成分どうしの積で $2l_{\max,a}$ まで出るが、固有関数をすでに切っているので意味が無い）
 
 <div class="note">
 
@@ -527,7 +527,7 @@ $$
 に置き換える（Ry 単位。$V(r)$ は原子核の $-2Z/r$ を含む球対称のポテンシャル、$\epsilon$ は部分波のエネルギー）。
 $\gamma_l$ の項は、Dirac 方程式の小さい成分の角度部分を $j=l\pm\frac12$ で平均したときに出る $l(l+1)g^2/(2Mcr)^2$ である。
 これで密度 $n$、$O_{ij}$ などが求まり、SR 近似の全エネルギーになる。
-変わるのは式 (24) の $\widetilde P_{akL}\widetilde P_{ak'L}$（と $\nabla$ 付きのもの）で、大きい成分どうしの積<span class="clfix">に $\gamma_l$ を掛けたもの（式 30）</span>に小さい成分どうしの積も加えたものと読む。$\pi$ の中の第 1 成分の密度 $n_{1,a}$ も同じ。
+変わるのは式 (24) の $\widetilde P_{akL}\widetilde P_{ak'L}$（と $\nabla$ 付きのもの）で、大きい成分どうしの積に $\gamma_l$ を掛けたもの（式 30）に小さい成分どうしの積も加えたものと読む。$\pi$ の中の第 1 成分の密度 $n_{1,a}$ も同じ。
 スピン軌道相互作用も同じように第 1 成分に入れ、スピンの非対角の寄与になる。
 
 <div class="note">
@@ -555,7 +555,7 @@ $\gamma_l$ の項は、Dirac 方程式の小さい成分の角度部分を $j=l\
 | $\rho_{ij}$ | 密度行列 $\sum_p^{\rm occ}\alpha^{i*}_p\alpha^j_p$ | 式 (9) |
 | $\Omega$ | 単位胞 | §1 |
 | $\mathbf T$ | 格子の並進ベクトル | 式 (11) |
-| $\mathbf G$ | 逆格子ベクトル（APW、実空間メッシュ） | <del class="clfix">§6</del><span class="clfix">式 (1)</span> |
+| $\mathbf G$ | 逆格子ベクトル（APW、実空間メッシュ） | 式 (1) |
 | $\bullet$, $\circ$ | 全空間での積分（周期系では単位胞あたり）、同じ MT 球の中だけの積分 | 式 (13) |
 
 表 2. このページの添字と記号。
@@ -580,7 +580,7 @@ $$
 
 **変分**
 
-<span class="clfix">コアは凍結しているので、変わるのは価電子の部分だけである。</span>式 (12) より $\delta\bar n_0=\delta n_0+\sum_{a\mathbf TL}\delta Q_{aL}G_{aL}(\mathbf r-\mathbf R_a-\mathbf T)$、$\delta\bar n_{1,a}=\delta n_{1,a}$、$\delta\bar n_{2,a}=\delta n_{2,a}+\sum_L\delta Q_{aL}G_{aL}(\mathbf r)$ で、多重極の変化は $\delta Q_{aL}=\int_{|\mathbf r|\le R_a}\mathcal Y_L(\delta n_{1,a}-\delta n_{2,a})$ である。式 (A2) に代入すると
+コアは凍結しているので、変わるのは価電子の部分だけである。式 (12) より $\delta\bar n_0=\delta n_0+\sum_{a\mathbf TL}\delta Q_{aL}G_{aL}(\mathbf r-\mathbf R_a-\mathbf T)$、$\delta\bar n_{1,a}=\delta n_{1,a}$、$\delta\bar n_{2,a}=\delta n_{2,a}+\sum_L\delta Q_{aL}G_{aL}(\mathbf r)$ で、多重極の変化は $\delta Q_{aL}=\int_{|\mathbf r|\le R_a}\mathcal Y_L(\delta n_{1,a}-\delta n_{2,a})$ である。式 (A2) に代入すると
 
 $$
 \begin{aligned}
