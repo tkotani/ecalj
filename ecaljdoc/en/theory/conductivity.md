@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3c93f8e2 (source blob f2d7f3b80).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 6591d420d (source blob 68f213e4b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -430,51 +430,68 @@ For the anomalous Hall conductivity too, the integral of the Berry curvature ove
 So the distinction "only the electrons on the Fermi surface contribute, or all electrons" has no physical meaning.
 
 The exception is the integer part. We see this with formulas in the following setting.
-In a two-dimensional crystal, band 1 is completely filled (no Fermi surface), and band 2 is occupied only in a region $S$ of the Brillouin zone (an electron pocket). The Fermi surface is the boundary $\partial S$ of $S$.
-With the Berry connection and Berry curvature of the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions,
+In a three-dimensional crystal (orthorhombic for simplicity, with lattice constants $a$, $b$, $c$), band 1 is completely filled (no Fermi surface), and band 2 is occupied only in a region $S$ of the Brillouin zone (an electron pocket). The Fermi surface is the closed surface $\partial S$, the boundary of $S$.
+The Berry connection and Berry curvature of the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions are
 
 $$
 {\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
-\Omega_n({\bf k})=\partial_{k_x}a_{n,y}-\partial_{k_y}a_{n,x}
+{\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k})
 \tag{C33}
 $$
 
-the intrinsic anomalous Hall conductivity is (the sign depends on the orientation convention of $\Omega$)
+The intrinsic anomalous Hall conductivity (the sign depends on the orientation convention of ${\bf\Omega}$), split into cross-sections at each $k_z$, is
 
 $$
-\sigma_{xy}=\frac{e^2}{h}\,\frac{1}{2\pi}\Big[\int_{\rm BZ}\Omega_1\,d^2k+\int_S\Omega_2\,d^2k\Big]
+\begin{aligned}
+\sigma_{xy}&=\frac{e^2}{\hbar}\sum_n\int_{\rm occ}\frac{d^3k}{(2\pi)^3}\,\Omega_n^z\\
+&=\frac{e^2}{h}\,\frac{1}{2\pi}\int dk_z\,\Big[\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k+\frac{1}{2\pi}\int_{S(k_z)}\Omega_2^z\,d^2k\Big]
+\end{aligned}
 \tag{C34}
 $$
 
-The first term is the Chern number of band 1, $C_1=\frac{1}{2\pi}\int_{\rm BZ}\Omega_1\,d^2k$, an integer. The Brillouin zone is a torus without boundary, so this cannot be rewritten as an integral over a boundary ($C_1\neq 0$ means that no gauge is smooth over the whole Brillouin zone).
-The second term, with a gauge smooth on $S$, becomes by Stokes' theorem the Berry phase $\gamma_2$ on the Fermi surface:
+where $T^2(k_z)$ is the cross-section of the Brillouin zone at fixed $k_z$ and $S(k_z)$ the pocket in that cross-section.
+
+**First term (band 1)**: The Brillouin zone is a three-dimensional torus, so the cross-section $T^2(k_z)$ is itself a closed surface without boundary (a two-dimensional torus) that wraps the Brillouin zone in the $k_x$ and $k_y$ directions.
+The integral on it, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since the surface is closed, it cannot be rewritten as an integral over a boundary.
+The $k_z$ integral gives $2\pi/c$, so the first term is $(e^2/h)\,C_1^z/c$. Together with the Chern numbers $C_1^x$, $C_1^y$ of the surfaces wrapping the Brillouin zone in the other directions,
 
 $$
-\int_S\Omega_2\,d^2k=\oint_{\partial S}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2.
+\sigma_{ij}^{(1)}=\frac{e^2}{2\pi h}\,\epsilon_{ijl}\,G_l,\qquad
+{\bf G}=2\pi\Big(\frac{C_1^x}{a},\frac{C_1^y}{b},\frac{C_1^z}{c}\Big)
 \tag{C35}
 $$
 
-From the states on the Fermi surface alone, however, $\gamma_2$ is fixed only modulo $2\pi$. A gauge transformation $|u_{2{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{2{\bf k}}\rangle$ gives ${\bf a}_2\to{\bf a}_2-\nabla_{\bf k}\phi$, so that
+where ${\bf G}$ is a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
+
+**Second term (band 2)**: In each cross-section, with a gauge smooth on $S(k_z)$, Stokes' theorem gives
 
 $$
-\gamma_2\to\gamma_2-2\pi w
+\int_{S(k_z)}\Omega_2^z\,d^2k=\oint_{\partial S(k_z)}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2(k_z)
 \tag{C36}
 $$
 
-($w$ is the integer number of times $\phi$ winds by $2\pi$ around $\partial S$). Which $w$ is right (which gauge connects smoothly inside $S$) cannot be decided without looking at the states inside the Fermi surface.
-So the Fermi surface fixes $\sigma_{xy}=(e^2/h)\,[\gamma_2/2\pi+\text{integer}]$ only modulo $e^2/h$; the integer part ($C_1$ and the $2\pi$ ambiguity of $\gamma_2$) is information of the Fermi sea.
-
-As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal layer, without coupling, put either an ordinary insulator layer (A, $C_1=0$) or a Chern-insulator layer (B, $C_1=1$). Eq. (C34) gives
+The loop $\partial S(k_z)$ is the Fermi surface cut at $k_z$ (the cyclotron orbit in a magnetic field along $z$), and $\gamma_2(k_z)$ is the Berry phase on it.
+From the states on the Fermi surface alone, however, $\gamma_2(k_z)$ is fixed only modulo $2\pi$. A gauge transformation $|u_{2{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{2{\bf k}}\rangle$ gives ${\bf a}_2\to{\bf a}_2-\nabla_{\bf k}\phi$, so that
 
 $$
-\sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{h}
+\gamma_2(k_z)\to\gamma_2(k_z)-2\pi w
 \tag{C37}
 $$
 
-and this difference cannot be told from the Fermi surface. The extreme case is a quantum Hall insulator, in which $S$ is empty (no Fermi surface) but $\sigma_{xy}=C_1e^2/h$.
+($w$ is the integer number of times $\phi$ winds by $2\pi$ around the loop). Which $w$ is right (which gauge connects smoothly inside $S(k_z)$) cannot be decided without looking at the states inside the Fermi surface.
 
-A weak coupling only changes the Fermi surface and the Berry phase continuously; the integer does not change unless the gap closes. In three dimensions, this integer part becomes a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
+In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C35) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
+As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C34) gives
 
-In a finite sample with edges, however, as many edge states as the Chern number cross the gap and pass through $E_F$ (bulk-edge correspondence). If the integer part is regarded as carried by the edge states at $E_F$, the view "determined by the states at $E_F$" holds once the boundary is included.
+$$
+\sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{hc}
+\tag{C38}
+$$
+
+and this difference cannot be told from the Fermi surface. The extreme case is a three-dimensional quantum Hall insulator, in which $S$ is empty (no Fermi surface) but $\sigma_{xy}=C_1^z e^2/hc$.
+
+A weak coupling only changes the Fermi surface and the Berry phase continuously; the integer does not change unless the gap closes.
+
+In a finite sample with surfaces, however, as many surface states as the Chern number cross the gap and pass through $E_F$ (bulk-edge correspondence). If the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the boundary is included.
 In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
 $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C17) moves it completely onto the Fermi surface.
