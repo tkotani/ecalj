@@ -3,7 +3,7 @@
 ::: info 下書き
 **一体問題** として、線形応答（久保公式）から不純物による電気抵抗を導く。
 ミソは、不純物の配置について平均を取るのが **グリーン関数の積** だという点である（一本ずつ平均してから掛けるのでは足りない）。
-グリーン関数の符号の約束は [Basic I](./basic) と同じで、遅延グリーン関数は $G^R(E)=1/(E-H+i\delta)$<span style="color:#d00">、先進グリーン関数は $G^A(E)=1/(E-H-i\delta)$</span>。
+グリーン関数の符号の約束は [Basic I](./basic) と同じで、遅延グリーン関数は $G^R(E)=1/(E-H+i\delta)$、先進グリーン関数は $G^A(E)=1/(E-H-i\delta)$。
 遅延型の応答関数については [付録](./appendix#causality) も見よ。
 :::
 
@@ -166,7 +166,7 @@ $$
 $$
 
 となる。
-<span style="color:#d00">ここでのデルタ関数は、幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$（添字の $\delta$ は式 (C11) の分母の $\delta$）の $\delta\to+0$ の極限と考える。$\delta$ を有限に残した考察が必要であるが、それは後で式 (C19)、(C20) で行う。</span>
+ここでのデルタ関数は、幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$（添字の $\delta$ は式 (C11) の分母の $\delta$）の $\delta\to+0$ の極限と考える。$\delta$ を有限に残した考察が必要であるが、それは後で式 (C19)、(C20) で行う。
 これは、フェルミ準位 $E_F$ での一体の量だけで決まる。
 $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直すと、Kubo–Greenwood の式
 
@@ -244,7 +244,7 @@ $$
 > となる。これは任意の $\omega$ と温度で成り立つ（$\omega\neq 0$ では光学伝導度を与える）。$\omega\to 0$、低温の極限では、式 (C12) と一致する。
 
 式 (C12) のデルタ関数の積の和（積分）は分かりにくいと思うので、以下で説明しておく。
-<del>$i\delta$ を有限に残すと、式 (C12) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる。</del><span style="color:#d00">$\delta$ を有限に残すと、式 (C12) のデルタ関数は $\delta_\delta$ のままになる。</span>
+$\delta$ を有限に残すと、式 (C12) のデルタ関数は $\delta_\delta$ のままになる。
 $\sum_n\delta_\delta(E-E_n)$ は状態密度 $D(E)$（系全体の、エネルギーあたりの状態の数）である。
 
 すこし考察してみる。もし行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くで一様（平均 $\overline{|v_x|^2}$）なら
@@ -271,7 +271,7 @@ $$
 実際には、行列要素は対角成分だけではないにせよ、$n$ とつながる $m$ の数は（完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限なので）有限であり、式 (C20) が正しいと考えてよい。
 
 式 (C20) の「フェルミ面の電子が電気伝導に効く」は、Drude の「すべての電子が $\tau$ の間加速される」と、次のようにつながる。
-式 (C20) の右辺の次の因子は、一つのバンド、スピンあたりで、$v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$（$\theta$ は占有の階段関数、$v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$）を使って $k_x$ について部分積分すると（境界の項はブリルアン<del>帯</del><span style="color:#d00">域</span>の周期性で消える）
+式 (C20) の右辺の次の因子は、一つのバンド、スピンあたりで、$v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$（$\theta$ は占有の階段関数、$v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$）を使って $k_x$ について部分積分すると（境界の項はブリルアン域の周期性で消える）
 
 $$
 \begin{aligned}
@@ -300,7 +300,7 @@ $$
 
 ## 不純物の配置についての平均 {#impurity-average}
 
-<span style="color:#d00">式 (C13) は、不純物の配置を一つ決めたときの式である。${\rm Im}\,G^R=(G^R-G^A)/2i$ と書くと、$G^A=(G^R)^\dagger$ から ${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ は実数、${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ は ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$ の複素共役なので、式 (C23) の一行目が配置ごとに成り立つ（近似は使っていない）。観測される伝導度は、式 (C13) を不純物の配置について平均したもので、二行目になる（$G$ はすべて $E=E_F$）:</span>
+式 (C13) は、不純物の配置を一つ決めたときの式である。${\rm Im}\,G^R=(G^R-G^A)/2i$ と書くと、$G^A=(G^R)^\dagger$ から ${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ は実数、${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ は ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$ の複素共役なので、式 (C23) の一行目が配置ごとに成り立つ（近似は使っていない）。観測される伝導度は、式 (C13) を不純物の配置について平均したもので、二行目になる（$G$ はすべて $E=E_F$）:
 
 $$
 \begin{aligned}
@@ -312,13 +312,13 @@ $$
 \tag{C23}
 $$
 
-<span style="color:#d00">二つの項を、以下でまとめて展開する（第 2 項が小さいことは [Drude の式](#drude) の節で見る）。</span>
+二つの項を、以下でまとめて展開する（第 2 項が小さいことは [Drude の式](#drude) の節で見る）。
 グリーン関数の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のグリーン関数である。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
 
 ::: tip 準備: 不純物がランダムに配置されているときの平均
-<span style="color:#d00">**平均を取る前**（配置を一つ決めたとき）:</span> 平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
+**平均を取る前**（配置を一つ決めたとき）: 平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
 
-<span style="color:#d00">**平均を取った後**:</span> 不純物の位置は乱雑なので、位相 $e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、一次の平均は ${\bf k}\neq{\bf k}'$ で 0 になり、二次では同じ不純物 $j$ について位相が消える組だけが残る:
+**平均を取った後**: 不純物の位置は乱雑なので、位相 $e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、一次の平均は ${\bf k}\neq{\bf k}'$ で 0 になり、二次では同じ不純物 $j$ について位相が消える組だけが残る:
 
 $$
 \begin{aligned}
@@ -330,7 +330,7 @@ $$
 
 :::
 
-これを使って式 (C23) の<span style="color:#d00">二つの項</span>を展開する。<span style="color:#d00">$G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$（$G^+=G^R$、$G^-=G^A$）と書き、${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ を考える（二つの複号は独立に取る。$(+,-)$ が第 1 項、$(+,+)$ が第 2 項）。</span>平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
+これを使って式 (C23) の二つの項を展開する。$G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$（$G^+=G^R$、$G^-=G^A$）と書き、${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ を考える（二つの複号は独立に取る。$(+,-)$ が第 1 項、$(+,+)$ が第 2 項）。平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
 
 $$
 \begin{aligned}
@@ -367,7 +367,7 @@ $$
 $$
 
 となる。ここで $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$ である。
-<span style="color:#d00">式 (C27) の第 2 項と第 3 項（</span><span style="color:#1f6fd0">青</span><span style="color:#d00">）は、一本の $G$ の中の二つの $V$ を組にした項で、$\Sigma_2$ を一つ挟んだ形である（一本の $G$ の中の平均は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残るので、${\bf k}$ について対角になる）。$V$ について高次まで見ると、$\Sigma_2$ を二つ、三つと挟んだものが出てくる。対が互いに交差しないものだけを取る（Born 近似）と、それらは等比級数になって</span>
+式 (C27) の第 2 項と第 3 項（<span style="color:#1f6fd0">青</span>）は、一本の $G$ の中の二つの $V$ を組にした項で、$\Sigma_2$ を一つ挟んだ形である（一本の $G$ の中の平均は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残るので、${\bf k}$ について対角になる）。$V$ について高次まで見ると、$\Sigma_2$ を二つ、三つと挟んだものが出てくる。対が互いに交差しないものだけを取る（Born 近似）と、それらは等比級数になって
 
 $$
 \begin{aligned}
@@ -377,8 +377,8 @@ $$
 \tag{C28}
 $$
 
-<span style="color:#d00">にまとまる（$\Sigma^{\pm}=\Sigma^{\pm}_2$）。$\bar G$ は並進対称で、${\bf k}$ について対角である。</span>
-<span style="color:#d00">第 4 項（</span><span style="color:#d26a00">橙</span><span style="color:#d00">）は、$G^{\pm}$ の $V$ と $G^{\pm'}$ の $V$ を組にした項で、二つの $G$ の積を平均したことで残る、同じ不純物で散乱される相関である（一本ずつ平均してから掛けると出てこない）。この型の項を落とすと、式 (C23) は</span>
+にまとまる（$\Sigma^{\pm}=\Sigma^{\pm}_2$）。$\bar G$ は並進対称で、${\bf k}$ について対角である。
+第 4 項（<span style="color:#d26a00">橙</span>）は、$G^{\pm}$ の $V$ と $G^{\pm'}$ の $V$ を組にした項で、二つの $G$ の積を平均したことで残る、同じ不純物で散乱される相関である（一本ずつ平均してから掛けると出てこない）。この型の項を落とすと、式 (C23) は
 
 $$
 \begin{aligned}
@@ -388,13 +388,13 @@ $$
 \tag{C29}
 $$
 
-<span style="color:#d00">となる。以下、$\Sigma$ を求め（次節）、式 (C29) の二つの項を評価する（[Drude の式](#drude) の節）。第 4 項の型の項は [バーテックス補正](#vertex-correction) の節で取り入れる。対が互いに交差する組み方は弱局在の補正を与えるが、ここでは扱わない。</span>
+となる。以下、$\Sigma$ を求め（次節）、式 (C29) の二つの項を評価する（[Drude の式](#drude) の節）。第 4 項の型の項は [バーテックス補正](#vertex-correction) の節で取り入れる。対が互いに交差する組み方は弱局在の補正を与えるが、ここでは扱わない。
 
-## <span style="color:#d00">第 2 項と第 3 項の足し上げ: 寿命と Drude の式</span> {#self-energy-sum}
+## 第 2 項と第 3 項の足し上げ: 寿命と Drude の式 {#self-energy-sum}
 
-### <span style="color:#d00">式 (C29) の右辺第 1 項: 寿命と Drude の式</span> {#averaged-g}
+### 式 (C29) の右辺第 1 項: 寿命と Drude の式 {#averaged-g}
 
-<span style="color:#d00">式 (C28) の $\Sigma^{\pm}$ を具体的に求める。</span>$\Sigma_2$ の和を積分にすると、自己エネルギーは
+式 (C28) の $\Sigma^{\pm}$ を具体的に求める。$\Sigma_2$ の和を積分にすると、自己エネルギーは
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
@@ -409,7 +409,7 @@ $$
 \tag{C31}
 $$
 
-<span style="color:#d00">ここで $E=E_F$ とおくと</span>
+ここで $E=E_F$ とおくと
 
 $$
 \frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E_F-\varepsilon_{\bf k'})
@@ -418,7 +418,7 @@ $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
-<span style="color:#d00">これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。以下で具体的に評価する。</span>
+これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。以下で具体的に評価する。
 
 <a id="drude"></a>
 
@@ -443,9 +443,9 @@ $$
 
 となり、式 (C22) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
 
-### <span style="color:#d00">式 (C29) の右辺第 2 項</span> {#rr-term}
+### 式 (C29) の右辺第 2 項 {#rr-term}
 
-<span style="color:#d00">式 (C29) の第 2 項を正確に見積もる。$g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$、$\gamma=\hbar/2\tau$ と書くと、</span>
+式 (C29) の第 2 項を正確に見積もる。$g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$、$\gamma=\hbar/2\tau$ と書くと、
 
 $$
 \begin{aligned}
@@ -456,8 +456,8 @@ $$
 \tag{C35}
 $$
 
-<span style="color:#d00">である。二つ目の等号は、$(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ を使った部分積分である（境界の項は消える）。右辺は $\gamma\to0$ でも有限で、その実部は $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$ となり、$\tau$ によらない。$g$ は $E_F$ ほどのエネルギーの尺度で変わるので、その大きさは $g(E_F)$ の程度である。</span>
-<span style="color:#d00">一方、第 1 項は、式 (C33) を $g$ で書くと</span>
+である。二つ目の等号は、$(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ を使った部分積分である（境界の項は消える）。右辺は $\gamma\to0$ でも有限で、その実部は $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$ となり、$\tau$ によらない。$g$ は $E_F$ ほどのエネルギーの尺度で変わるので、その大きさは $g(E_F)$ の程度である。
+一方、第 1 項は、式 (C33) を $g$ で書くと
 
 $$
 \begin{aligned}
@@ -467,12 +467,12 @@ $$
 \tag{C36}
 $$
 
-<span style="color:#d00">で、$\tau$ に比例する。式 (C35) と (C36) の比は $\hbar/(E_F\tau)$ の程度で、散乱が弱い（$\hbar/\tau\ll E_F$）ときは小さいので、第 2 項を落とした。</span>
+で、$\tau$ に比例する。式 (C35) と (C36) の比は $\hbar/(E_F\tau)$ の程度で、散乱が弱い（$\hbar/\tau\ll E_F$）ときは小さいので、第 2 項を落とした。
 
-### <span style="color:#d00">まとめ</span> {#lifetime-summary}
+### まとめ {#lifetime-summary}
 
-<span style="color:#d00">まとめると、第 4 項（橙）の型を落とした近似では、式 (C29) の第 1 項から寿命 $\tau$ の Drude の式 (C34) が出て、第 2 項はそれより $\hbar/(E_F\tau)$ の程度だけ小さい。</span>
-素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。<span style="color:#d00">すなわち、電子は電場で加速され、不純物で散乱されるまでの時間 $\tau$ で寿命が決まるという、素朴な Drude の描像の結果を得る。</span>
+まとめると、第 4 項（橙）の型を落とした近似では、式 (C29) の第 1 項から寿命 $\tau$ の Drude の式 (C34) が出て、第 2 項はそれより $\hbar/(E_F\tau)$ の程度だけ小さい。
+素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。すなわち、電子は電場で加速され、不純物で散乱されるまでの時間 $\tau$ で寿命が決まるという、素朴な Drude の描像の結果を得る。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
@@ -496,7 +496,7 @@ $$
 \tag{C38}
 $$
 
-は輸送の緩和時間である。<span style="color:#d00">式 (C32) の $1/\tau$ と並べると、違いは被積分関数の重み $1-\cos\theta_{\bf kk'}$ だけである。前方への散乱（$\theta\simeq0$）は $1/\tau$ には効くが $1/\tau_{\rm tr}$ にはほとんど効かず、後方への散乱（$\theta\simeq\pi$）は $1/\tau_{\rm tr}$ に 2 倍の重みで効く。したがって $\tau_{\rm tr}\ge\tau/2$ で、前方への散乱が強いほど $\tau_{\rm tr}$ は $\tau$ より長くなる。</span>式 (C34) の片方の $v_x$ を $\Gamma_x$ に替えると
+は輸送の緩和時間である。式 (C32) の $1/\tau$ と並べると、**違いは被積分関数の重み $1-\cos\theta_{\bf kk'}$ だけである。**前方への散乱（$\theta\simeq0$）は $1/\tau$ には効くが $1/\tau_{\rm tr}$ にはほとんど効かず、後方への散乱（$\theta\simeq\pi$）は $1/\tau_{\rm tr}$ に 2 倍の重みで効く。したがって $\tau_{\rm tr}\ge\tau/2$ で、前方への散乱が強いほど $\tau_{\rm tr}$ は $\tau$ より長くなる。式 (C34) の片方の $v_x$ を $\Gamma_x$ に替えると
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
@@ -530,7 +530,7 @@ $T^3$ では、そのような周回路（$T^1$）が $k_x$、$k_y$、$k_z$ の�
 ## メモ: フェルミ面項とフェルミ海項 {#fermi-sea-surface}
 
 久保公式の静的な伝導度 $\sigma_{ij}$ を、重み $-\partial f/\partial E$ を持つ **フェルミ面項** と、重み $f(E)$ で占有状態全体を積分する **フェルミ海項** に分ける書き方がある（Středa の分け方。異常ホール効果の文献でよく使われる）。
-フェルミ海項は $i\leftrightarrow j$ について反対称なので、$\sigma_{xx}$ には効かない。式 (C23) の<span style="color:#d00">第 1 項</span>は、フェルミ面項のうち $G^RG^A$ の部分である。
+フェルミ海項は $i\leftrightarrow j$ について反対称なので、$\sigma_{xx}$ には効かない。式 (C23) の第 1 項は、フェルミ面項のうち $G^RG^A$ の部分である。
 
 ただし、この分け方は一つに決まらない。部分積分で一方を他方に書き直せるからである。
 式 (C21) では、占有領域の積分（Drude の $n/m$）とフェルミ面での $\overline{v_x^2}D(E_F)$ が同じ量だった。
