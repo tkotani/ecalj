@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 4fb906c11 (source blob 7503f79c0).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0479b774e (source blob cf327ba00).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -268,10 +268,6 @@ $$
 
 which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
 In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C20) may be regarded as correct.
-
-> Note: Eq. (C19) is not physically impossible either. In the exact eigenstates of a system with impurities, without the configuration average, $|\langle n|\hat v_x|m\rangle|^2$ is nearly uniform for $|E_n-E_m|\lesssim\hbar/\tau$ and becomes small beyond that (because the velocity correlation decays in a time $\tau$).
-> From the sum rule $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$, the uniform value is $\overline{|v_x|^2}\sim\overline{v_x^2}\,\tau/\big(\hbar D(E_F)\big)$, and inserting it into Eq. (C19) gives $\sigma_{xx}\sim e^2\tau\,\overline{v_x^2}\,D(E_F)/\Omega$, the same form as the Drude formula (independent of $\delta$ for $\delta\ll\hbar/\tau$).
-> Eq. (C20) is the form in which the hand-inserted $\delta$ takes over the role of this spread $\hbar/\tau$ of the matrix elements.
 
 Eq. (C20)'s "the electrons on the Fermi surface contribute to the conduction" is connected to Drude's "all electrons are accelerated for the time $\tau$" as follows.
 The following factor on the right-hand side of Eq. (C20), for one band and per spin, becomes by integration by parts in $k_x$, using $v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$ ($\theta$ is the step function of the occupation, $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$; the boundary term vanishes by the periodicity of the Brillouin zone),
