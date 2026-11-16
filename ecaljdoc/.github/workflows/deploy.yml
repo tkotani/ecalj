@@ -48,6 +48,9 @@ jobs:
       - name: Install dependencies
         run: npm ci # or pnpm install / yarn install / bun install
       - name: Build with VitePress
+        # Node's default heap (about 4 GB) ran out on 2026-11-17 with the English pages added; the runner has 16 GB
+        env:
+          NODE_OPTIONS: --max-old-space-size=12288
         run: npm run docs:build # or pnpm docs:build / yarn docs:build / bun run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
