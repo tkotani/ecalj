@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ddb946802 (source blob 39b3f6efb).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3292920fb (source blob 9a84f1e2f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -120,30 +120,30 @@ $$
 
 This is the result of the Kubo formula. What fixes the dissipation (Joule heat) is the real part of $\sigma$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees. This is an inductance effect, not due to a magnetic field but a kinetic inductance from the inertia of the electrons; the energy is stored as the kinetic energy of the electrons).
 
-In Kusunose's book (H. Kusunose, *Electron Theory of Spin-Orbit-Coupled Physics* (Kodansha, 2019, in Japanese), §1.3, Eqs. (1.106)–(1.109)), the electric field is put in as $-\Omega\,{\bf P}\cdot{\bf E}$ (${\bf P}$ the polarization), and the conductivity is written using partial integration in time (Eqs. (1.107) and (1.108) of the book; there $\Pi_{\mu\nu}=\chi^R_{JJ}$ and $V=\Omega$). Side by side with Eq. (C8),
-
-$$
-\begin{aligned}
-\sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-ne^2\Omega/m}{i\omega\Omega}&&\text{(Eq. (C8))}\\
-\sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-\chi^R_{JJ}(0)}{i\omega\Omega}&&\text{(Eq. (1.109) of the book)}
-\end{aligned}
-\tag{C9}
-$$
-
-and the only difference is in the second term. This is because the first term on the right-hand side of Eq. (C6), $-(ne^2\Omega/m)A_x(t)$, is deliberately pushed into the form of the second term, $-\chi^R_{JJ}(\omega=0)\,A_x(t)$.
-$\chi^R_{JJ}(\omega=0)\,A_x$ is the current due to the change of the density matrix $\rho$ when $A_x$ is switched on infinitely slowly (adiabatically). This is seen by retracing the derivation of the linear-response formula. Switching on a static $A_x$ as $e^{\delta t'}$, and setting $F(t')=e^{\delta t'}A_x$ in the formula for $\delta\rho_{\rm I}$ used to derive Eq. (C3), at $t=0$,
-
-$$
-\begin{aligned}
-\delta\rho&=\frac{i}{\hbar}\int_{-\infty}^{0}dt'\,e^{\delta t'}\,[\hat J^0_{x,{\rm H}}(t'),\rho_0]\,A_x,\\
-\langle n|\delta\rho|m\rangle&=(f_m-f_n)\,\frac{\langle n|\hat J^0_x|m\rangle}{E_n-E_m-i\delta}\,A_x,\\
-{\rm Tr}[\delta\rho\,\hat J^0_x]&=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-i\delta}\,A_x=\chi^R_{JJ}(0)\,A_x
-\end{aligned}
-\tag{C10}
-$$
-
-(with $\hbar\delta$ written again as $\delta$). The $i\delta$ is the trace of the slow switching on, and the third line is Eq. (C4) at $\omega=0$.
-That is, the book's form amounts to assuming that under a static $A_x$ the current from the change of $\rho$ exactly cancels the diamagnetic current, so that the total current is 0. In a system where a current remains under a static $A_x$, such as a superconductor, the book's form cannot be used, and Eq. (C8) is used.
+> In Kusunose's book (H. Kusunose, *Electron Theory of Spin-Orbit-Coupled Physics* (Kodansha, 2019, in Japanese), §1.3, Eqs. (1.106)–(1.109)), the electric field is put in as $-\Omega\,{\bf P}\cdot{\bf E}$ (${\bf P}$ the polarization), and the conductivity is written using partial integration in time (Eqs. (1.107) and (1.108) of the book; there $\Pi_{\mu\nu}=\chi^R_{JJ}$ and $V=\Omega$). Side by side with Eq. (C8),
+>
+> $$
+> \begin{aligned}
+> \sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-ne^2\Omega/m}{i\omega\Omega}&&\text{(Eq. (C8))}\\
+> \sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-\chi^R_{JJ}(0)}{i\omega\Omega}&&\text{(Eq. (1.109) of the book)}
+> \end{aligned}
+> \tag{C9}
+> $$
+>
+> and the only difference is in the second term. This is because the first term on the right-hand side of Eq. (C6), $-(ne^2\Omega/m)A_x(t)$, is deliberately pushed into the form of the second term, $-\chi^R_{JJ}(\omega=0)\,A_x(t)$.
+> $\chi^R_{JJ}(\omega=0)\,A_x$ is the current due to the change of the density matrix $\rho$ when $A_x$ is switched on infinitely slowly (adiabatically). This is seen by retracing the derivation of the linear-response formula. Switching on a static $A_x$ as $e^{\delta t'}$, and setting $F(t')=e^{\delta t'}A_x$ in the formula for $\delta\rho_{\rm I}$ used to derive Eq. (C3), at $t=0$,
+>
+> $$
+> \begin{aligned}
+> \delta\rho&=\frac{i}{\hbar}\int_{-\infty}^{0}dt'\,e^{\delta t'}\,[\hat J^0_{x,{\rm H}}(t'),\rho_0]\,A_x,\\
+> \langle n|\delta\rho|m\rangle&=(f_m-f_n)\,\frac{\langle n|\hat J^0_x|m\rangle}{E_n-E_m-i\delta}\,A_x,\\
+> {\rm Tr}[\delta\rho\,\hat J^0_x]&=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-i\delta}\,A_x=\chi^R_{JJ}(0)\,A_x
+> \end{aligned}
+> \tag{C10}
+> $$
+>
+> (with $\hbar\delta$ written again as $\delta$). The $i\delta$ is the trace of the slow switching on, and the third line is Eq. (C4) at $\omega=0$.
+> That is, the book's form amounts to assuming that under a static $A_x$ the current from the change of $\rho$ exactly cancels the diamagnetic current, so that the total current is 0. In a system where a current remains under a static $A_x$, such as a superconductor, the book's form cannot be used, and Eq. (C8) is used.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
