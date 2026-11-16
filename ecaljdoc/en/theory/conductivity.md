@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1ae2dfe8f (source blob 58fec354d).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a6b09980c (source blob 2d76dad47).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -312,16 +312,22 @@ $$
 We first study the first term (the second term is estimated in the section on the [Drude formula](#drude)).
 To compute the average of the product of Green functions, we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the Green function of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
 
+::: tip Preparation: the average when the impurities are placed at random
 **Before the average** (for one fixed configuration): the matrix element between plane waves $|{\bf k}\rangle$ is $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$.
 
-**After the average**: since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), and only the pairs on the same impurity $j$, whose phases cancel, remain:
+**After the average**: since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), the first-order average vanishes for ${\bf k}\neq{\bf k}'$, and at second order only the pairs on the same impurity $j$, whose phases cancel, remain:
 
 $$
-\big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
+\begin{aligned}
+&\big\langle \langle{\bf k}|V|{\bf k}'\rangle\big\rangle_{\rm imp}=n_i\,u(0)\,\delta_{ {\bf k}{\bf k}'},\\
+&\big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
+\end{aligned}
 \tag{C24}
 $$
 
 (the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
+:::
+
 With this we expand the two terms of Eq. (C23). Writing $G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$ ($G^+=G^R$, $G^-=G^A$), we consider ${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ (the two signs are taken independently; $(+,-)$ gives the first term, $(+,+)$ the second). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
 
 $$
