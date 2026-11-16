@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 95140f1ad (source blob a8d7f2017).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 44050d709 (source blob 50fa9264e).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -131,7 +131,8 @@ $$
 $$
 
 and the only difference is in the second term, namely $\big[\chi^R_{JJ}(0)-ne^2\Omega/m\big]/(i\omega\Omega)$.
-This evaluation $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ holds in a system with impurities (the setting of this document), when the system is first made infinitely large and the quantities are converted to per unit volume, and only then $\delta\to+0$ is taken.
+$\chi^R_{JJ}(0)$ is evaluated from Eq. (C4) at $\omega=0$ as $\chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2/(E_m-E_n)$. In a finite system where the position operator $\hat x$ can be used (not under periodic boundary conditions), $[\hat x,\hat H_0]=i\hbar\hat p_x/m$ gives $\langle n|\hat J^0_x|m\rangle=(ie/\hbar)(E_m-E_n)\langle n|\hat x|m\rangle$, and $\chi^R_{JJ}(0)=(e^2/\hbar^2)\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle=Ne^2/m=ne^2\Omega/m$ (the f-sum rule), so the difference vanishes. Under periodic boundary conditions $\hat x$ cannot be used, and $\chi^R_{JJ}(0)$ can be smaller than $ne^2\Omega/m$ by the terms with $f_n=f_m$ that drop out (the intraband terms at the same ${\bf k}$). That difference is the Drude weight.
+Even under periodic boundary conditions, in a system with impurities (the setting of this document), if the system is first made infinitely large and the quantities are converted to per unit volume, and only then $\delta\to+0$ is taken, the Drude weight becomes 0 and the book's evaluation $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ holds.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
