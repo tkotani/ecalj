@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 7804b8055 (source blob d4952c3ad).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d71c3a46d (source blob d614b3b74).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -202,6 +202,7 @@ $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) 
 > $$
 >
 > (using $1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$ and $1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$; the subscripts are components in the eigenstates).
+> In the first line of Eq. (C15), the energies with $\hbar\omega=E_m-E_n$ are the excitation energies (excitation from $n$ to $m$). $\chi^R_{JJ}$ has the retarded form with respect to these excitations (the poles $\hbar\omega=E_m-E_n-i\delta$ lie in the lower half-plane of $\omega$).
 > Inserting $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$, at any temperature
 >
 > $$
