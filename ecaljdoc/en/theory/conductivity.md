@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a825dd8a7 (source blob b88b9667e).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b4eb38623 (source blob ff5f4e68b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -667,14 +667,6 @@ The Hall conductance of the sheet is $\sigma_{xy}=C\,e^2/h$, and this Hall curre
 > When $k_y$ goes once around the Brillouin zone, $\gamma$ advances by $2\pi C$ (the Chern number is the winding number of the Zak phase; Eq. (C50)). So one cycle of $k_y$ carries exactly $C$ electrons in $x$.
 > In the half-plane with an edge, the carried electrons can only accumulate at the edge (or leave it). Since the Hamiltonian returns to itself after one cycle of $k_y$, $C$ levels must have crossed $E_F$ in between. The bulk has a gap at $E_F$, so the crossing levels are localized at the edge, and their branches $E(k_y)$ cross the gap.
 > What is guaranteed is the net number (branches crossing upward minus those crossing downward); details of the surface can add or remove pairs of upward and downward branches, but the net $C$ does not change unless the bulk gap closes. The direction of crossing (the slope of $E(k_y)$) is the direction of the group velocity $v_y$, so the net motion is in one direction.
-
-**Stacked sheets**: The system B of Eq. (C48) is this sheet ($C=C_1^z=1$) stacked in $z$ with spacing $c$, so it is periodic in $z$ as well (period $c$; no metal). If the layers are weakly coupled, the Chern number $C_1^z$ of the cross-section $T^2(k_z)$ equals that of one sheet, and the Hall conductivity per unit volume is $e^2/h$ per sheet divided by $c$, i.e. $e^2/hc$.
-Cut it by one plane at $x=0$ into the half-infinite sample ($x\gt 0$, periodic in $y$ and $z$).
-
-- The states are labeled by $(k_y,k_z)$. The surface Brillouin zone is the $T^2$ obtained from the bulk $T^3$ by removing $k_x$, normal to the surface.
-- The edge states of the sheets are lined up in $z$ with period $c$ and cover the surface. For each $k_z$, the edge of the cross-section $T^2(k_z)$ carries $C_1^z$ edge states as for one sheet; as $k_z$ varies, they form a sheet of surface states present at every $k_z$.
-- The Hall current is carried by these surface states. If the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the surface is included.
-- A cut by a plane perpendicular to $z$ (parallel to the sheets), on the other hand, only exposes the face of a sheet, not its edge, so it gives no such states. Surface states appear when the surface normal is perpendicular to ${\bf G}$ (here along $z$).
 
 ## Note: the Thouless pump {#thouless-pump}
 
