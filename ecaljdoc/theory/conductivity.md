@@ -198,7 +198,8 @@ $$
 \tag{C15}
 $$
 
-となる。$G^R={\rm Re}\,G+i\,{\rm Im}\,G$、$G^A={\rm Re}\,G-i\,{\rm Im}\,G$（${\rm Re}\,G$、${\rm Im}\,G$ はどちらもエルミート。${\rm Im}\,G=-\pi\delta(E-H)$ は極だけの部分である）と分けると、虚部は ${\rm Re}\,G\cdot{\rm Im}\,G$ と ${\rm Im}\,G\cdot{\rm Im}\,G$ の組み合わせになる。
+となる。$G^R(E)=(E-H+i\delta)^{-1}$ と $G^A(E)=(E-H-i\delta)^{-1}$ の違いは、極（$H$ の固有値）を実軸の下に置くか上に置くかの違いである。その差 $G^R-G^A=-2\pi i\,\delta(E-H)$ は、その極の作るデルタ関数である。
+$G^R={\rm Re}\,G+i\,{\rm Im}\,G$、$G^A={\rm Re}\,G-i\,{\rm Im}\,G$（${\rm Re}\,G$、${\rm Im}\,G$ はどちらもエルミート。${\rm Im}\,G=-\pi\delta(E-H)$ は極だけの部分である）と分けると、虚部は ${\rm Re}\,G\cdot{\rm Im}\,G$ と ${\rm Im}\,G\cdot{\rm Im}\,G$ の組み合わせになる。
 ${\rm Re}\,G$ を含む項のトレースは実数なので虚部には効かず、${\rm Im}\,G$ どうしの積（極の寄与）だけが残る。第 2 項で $E\to E+\hbar\omega$ とずらすと
 
 $$
