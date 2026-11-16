@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 858aa00fa (source blob 56a25e5f7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3351d0336 (source blob da962bf27).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -178,18 +178,19 @@ $$
 
 $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) states, and the factor 2 is the spin.
 
-On the other hand, in a one-body system the ring diagram (a product of two $G$, closed with $J$ at the end points) gives the exact result.
-Its linear response function is written with the time-ordered Green function $G^T(E)=\sum_m|m\rangle\langle m|/\big(E-E_m+i\delta\,{\rm sgn}(E_m-\mu)\big)$ as
+> For a better understanding, we look at the relation to the viewpoint of many-body perturbation theory. In a one-body system the ring diagram (a product of two $G$, closed with $J$ at the end points) gives the exact result.
+> Its linear response function is written with the time-ordered Green function $G^T(E)=\sum_m|m\rangle\langle m|/\big(E-E_m+i\delta\,{\rm sgn}(E_m-\mu)\big)$ as
+>
+> $$
+> \chi^T_{JJ}(\omega)=\frac{i}{2\pi}\int dE\,{\rm Tr}\big[J\,G^T(E)\,J\,G^T(E+\hbar\omega)\big]
+> \tag{C14}
+> $$
+>
+> (at zero temperature; $J=-e\hat v_x$ is a one-body operator). Taking the residues in the $E$ integral, only the pairs of occupied $n$ and unoccupied $m$ remain. The poles are at the same places as in Eq. (C4); only the sign of $i\delta$ on the $\omega\lt 0$ side differs.
+>
+> However, replacing $G^T$ in Eq. (C14) simply by $G^R$ does not make it retarded. $G^T$ has the form of $G^A$ for the occupied states and of $G^R$ for the unoccupied states, so the rewriting into the retarded form is done on the response function $\chi$ (moving all the poles in $\omega$ to the lower half-plane, $\omega\to\omega+i\delta$).
 
-$$
-\chi^T_{JJ}(\omega)=\frac{i}{2\pi}\int dE\,{\rm Tr}\big[J\,G^T(E)\,J\,G^T(E+\hbar\omega)\big]
-\tag{C14}
-$$
-
-(at zero temperature; $J=-e\hat v_x$ is a one-body operator). Taking the residues in the $E$ integral, only the pairs of occupied $n$ and unoccupied $m$ remain. The poles are at the same places as in Eq. (C4); only the sign of $i\delta$ on the $\omega\lt 0$ side differs.
-
-However, replacing $G^T$ in Eq. (C14) simply by $G^R$ does not make it retarded. $G^T$ has the form of $G^A$ for the occupied states and of $G^R$ for the unoccupied states, so the rewriting into the retarded form is done on the response function $\chi$ (moving all the poles in $\omega$ to the lower half-plane, $\omega\to\omega+i\delta$).
-In practice it is quicker to derive it directly from Eq. (C4). Writing $J_{nm}=\langle n|J|m\rangle$ and $f_n=\int dE\,f(E)\,\delta(E-E_n)$, and setting $E=E_n$ in the sum with $f_n$ and $E=E_m$ in the sum with $f_m$,
+We rewrite Eq. (C4) with Green functions. Writing $J_{nm}=\langle n|J|m\rangle$ and $f_n=\int dE\,f(E)\,\delta(E-E_n)$, and setting $E=E_n$ in the sum with $f_n$ and $E=E_m$ in the sum with $f_m$,
 
 $$
 \begin{aligned}
