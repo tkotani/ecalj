@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ca3fc7c95 (source blob 74821cbca).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 64d788d5f (source blob 150f71098).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -297,52 +297,37 @@ This approximation of a constant effective mass on the Fermi surface should hold
 > The structure of Eq. (C21), an integral over the occupied region connected to an integral over the Fermi surface by integration by parts, is the same as in the calculation of the anomalous Hall conductivity with the Berry curvature (the integral of the Berry curvature over the occupied states is rewritten as an integral of the Berry phase on the Fermi surface).
 
 
-### The $G^RG^A$ terms {#grga}
+## Average over the impurity configurations {#impurity-average}
 
-Eq. (C13) is for one fixed configuration of the impurities. The observed conductivity is its average $\langle\cdots\rangle_{\rm imp}$ over the impurity configurations.
-Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding gives terms with $G^RG^A$ and terms with $G^RG^R$, $G^AG^A$.
-For weak impurities (small $n_i|u|^2$) the $G^RG^A$ terms dominate:
+Eq. (C13) is for one fixed configuration of the impurities. The observed conductivity is its average $\langle\cdots\rangle_{\rm imp}$ over the impurity configurations. Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding (${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ is real, and ${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ is the complex conjugate of ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$),
 
 $$
-\sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
-\Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
+\begin{aligned}
+\sigma_{xx}={}&\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}\\
+&-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^R(E_F)\big]\Big\rangle_{\rm imp}\Big\}
+\end{aligned}
 \tag{C23}
 $$
 
-(after the configuration average, the $G^RG^A$ terms become large, of the order of the inverse of $n_i|u|^2$, while the $G^RG^R$ and $G^AG^A$ terms do not, and are smaller by a factor of the first order in $n_i|u|^2$).
-
-**The key point**: the average is taken of the **product** of $G^R$ and $G^A$:
-
-$$
-\big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
-\hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C24}
-$$
-
-A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
-
-If Eq. (C24) is taken as an equality (the product of the single averages), only the width $\hbar/2\tau$ of the self-energy in $\langle G\rangle$ ([lifetime](#averaged-g)) remains, giving the Drude formula with the lifetime $\tau$ ([Drude formula](#drude)). What is lost is the difference between the lifetime $\tau$ and the transport relaxation time (forward scattering does not reduce the current much; [vertex correction](#vertex-correction)). Without any averaging, keeping $\delta$ infinitesimal, Eq. (C20) diverges for $\delta\to0$.
-
-## Average over the impurity configurations {#impurity-average}
-
-To compute the average of the product in Eq. (C24), we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the Green function of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
+We first study the first term (the second term is estimated in the section on the [Drude formula](#drude)).
+To compute the average of the product of Green functions, we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the Green function of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
 The matrix element between plane waves $|{\bf k}\rangle$ is $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$.
 Since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), and only the pairs on the same impurity $j$, whose phases cancel, remain:
 
 $$
 \big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
-\tag{C25}
+\tag{C24}
 $$
 
 (the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
-With this we expand Eq. (C23). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
+With this we expand the first term of Eq. (C23). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
 
 $$
 \begin{aligned}
 {\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]
 &=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^A_{ {\bf k}'{\bf k}}
 \end{aligned}
-\tag{C26}
+\tag{C25}
 $$
 
 ($G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$; $E=E_F$ is not written). Expanding $G^R=(E-H_0-V+i\delta)^{-1}$ in $V$ gives
@@ -352,11 +337,11 @@ $$
 G^R_{ {\bf k}{\bf k}'}={}&G^R_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^R_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^R_0({\bf k}')\\
 &+\sum_{ {\bf k}_1}G^R_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^R_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^R_0({\bf k}')+\cdots
 \end{aligned}
-\tag{C27}
+\tag{C26}
 $$
 
 where $G^R_0({\bf k})=1/(E-\varepsilon_{\bf k}+i\delta)$, $\varepsilon_{\bf k}=\hbar^2k^2/2m$ and $V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$; $G^A$ is the same with $G^A_0({\bf k})=1/(E-\varepsilon_{\bf k}-i\delta)$.
-We put this into Eq. (C26) and average. Of the terms first order in $V$ only the ${\bf q}=0$ component remains, and it is absorbed in $E_F$. The second-order terms fall into three groups according to where the two $V$ are, and with Eq. (C25)
+We put this into Eq. (C25) and average. Of the terms first order in $V$ only the ${\bf q}=0$ component remains, and it is absorbed in $E_F$. The second-order terms fall into three groups according to where the two $V$ are, and with Eq. (C24)
 
 $$
 \begin{aligned}
@@ -368,7 +353,7 @@ $$
 &\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^R_0({\bf k}')\,G^A_0({\bf k}')\,v_x({\bf k}')\\
 &\qquad+O(V^4)
 \end{aligned}
-\tag{C28}
+\tag{C27}
 $$
 
 where $\Sigma^{R}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^R_0({\bf k}_1)$ ($\Sigma^A_2$ is the same with $G^R_0$ replaced by $G^A_0$).
@@ -381,7 +366,16 @@ The higher-order terms are the same: the average of a product of $V$ is the sum 
 - lines connecting $G^R$ and $G^A$: they give the vertex correction (section [Vertex correction](#vertex-correction));
 - crossing lines: they give the weak-localization correction (not treated here).
 
-Taking Eq. (C24) as an equality means dropping the lines connecting $G^R$ and $G^A$ (the fourth term of Eq. (C28) and its higher orders).
+As the fourth term of Eq. (C27) shows, the average is taken of the **product** of $G^R$ and $G^A$:
+
+$$
+\big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
+\hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}
+\tag{C28}
+$$
+
+The correlation of $G^R$ and $G^A$ scattered by the same impurity (impurity lines connecting the two lines) remains. This is the vertex correction.
+Taking Eq. (C28) as an equality means dropping the lines connecting $G^R$ and $G^A$ (the fourth term of Eq. (C27) and its higher orders).
 
 ## Green function with the self-energy: the lifetime {#averaged-g}
 
@@ -392,7 +386,7 @@ $$
 \tag{C29}
 $$
 
-Taking the lines within one $G$ that do not cross each other (Born approximation), Eq. (C25) gives the self-energy
+Taking the lines within one $G$ that do not cross each other (Born approximation), Eq. (C24) gives the self-energy
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
@@ -400,7 +394,7 @@ $$
 \tag{C30}
 $$
 
-(the $\Sigma^R_2$ of Eq. (C28) with the sum turned into an integral), and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
+(the $\Sigma^R_2$ of Eq. (C27) with the sum turned into an integral), and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
 
 $$
 \begin{aligned}
@@ -414,7 +408,7 @@ $1/\tau$ is just the scattering rate by Fermi's golden rule (see the corresponde
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Even in the approximation taking Eq. (C24) as an equality (dropping the lines connecting $G^R$ and $G^A$), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
+Even in the approximation taking Eq. (C28) as an equality (dropping the lines connecting $G^R$ and $G^A$), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -426,7 +420,7 @@ $$
 \tag{C32}
 $$
 
-which corresponds to the Lorentzian of Eq. (C20) with the width $\delta$ set to $\hbar/2\tau$. So Eq. (C23) becomes
+which corresponds to the Lorentzian of Eq. (C20) with the width $\delta$ set to $\hbar/2\tau$. So the first term of Eq. (C23) becomes
 
 $$
 \sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
@@ -434,11 +428,12 @@ $$
 $$
 
 the same Drude formula as Eq. (C22) ($ne^2\tau/m$ for free electrons).
+In the second term of Eq. (C23), both poles of $\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ lie below the real axis, so it does not become large in proportion to $\tau$ as in Eq. (C32). It is smaller than the first term by a factor of the order of $\hbar/(E_F\tau)$, so it was dropped.
 A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C24) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C30)).
+The product average (C28) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C30)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -493,7 +488,7 @@ The phase is assumed to vary continuously and smoothly. However, singular lines 
 ## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
 
 The static conductivity $\sigma_{ij}$ of the Kubo formula is sometimes split into a **Fermi-surface term**, with the weight $-\partial f/\partial E$, and a **Fermi-sea term**, integrated over all occupied states with the weight $f(E)$ (Středa's split; often used in the literature on the anomalous Hall effect).
-The Fermi-sea term is antisymmetric in $i\leftrightarrow j$, so it does not contribute to $\sigma_{xx}$. Eq. (C23) is the $G^RG^A$ part of the Fermi-surface term.
+The Fermi-sea term is antisymmetric in $i\leftrightarrow j$, so it does not contribute to $\sigma_{xx}$. The first term of Eq. (C23) is the $G^RG^A$ part of the Fermi-surface term.
 
 This split, however, is not unique, because integration by parts rewrites one into the other.
 In Eq. (C21), the integral over the occupied region (Drude's $n/m$) and $\overline{v_x^2}D(E_F)$ on the Fermi surface were the same quantity.
