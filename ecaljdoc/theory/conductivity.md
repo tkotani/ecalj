@@ -189,47 +189,47 @@ $$
 >
 > ただし、式 (C14) の $G^T$ をそのまま $G^R$ に置き換えても遅延型にはならない。$G^T$ は、占有の状態の分は $G^A$、非占有の状態の分は $G^R$ の形をしているので、遅延型への書き換えは応答関数 $\chi$ の側で行う（$\omega$ の極をすべて下半面に移す。$\omega\to\omega+i\delta$）。
 
-式 (C4) をグリーン関数で書き直す。$J_{nm}=\langle n|J|m\rangle$ と書き、$f_n=\int dE\,f(E)\,\delta(E-E_n)$ として、$f_n$ の和では $E=E_n$、$f_m$ の和では $E=E_m$ とおくと
-
-$$
-\begin{aligned}
-\chi^R_{JJ}(\omega)&=\sum_{nm}(f_n-f_m)\,\frac{J_{nm}J_{mn}}{E_m-E_n-\hbar\omega-i\delta}\\
-&=-\int dE\,f(E)\,{\rm Tr}\big[J\,\delta(E-H)\,J\,G^R(E+\hbar\omega)\\
-&\qquad+J\,G^A(E-\hbar\omega)\,J\,\delta(E-H)\big]
-\end{aligned}
-\tag{C15}
-$$
-
-となる（$1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$、$1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$ を使った。添字は固有状態の成分）。
-これに $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
-
-$$
-\begin{aligned}
-\chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
-&\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
-&\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
-\end{aligned}
-\tag{C16}
-$$
-
-となる。
+> 式 (C4) をグリーン関数で書き直す。$J_{nm}=\langle n|J|m\rangle$ と書き、$f_n=\int dE\,f(E)\,\delta(E-E_n)$ として、$f_n$ の和では $E=E_n$、$f_m$ の和では $E=E_m$ とおくと
+>
+> $$
+> \begin{aligned}
+> \chi^R_{JJ}(\omega)&=\sum_{nm}(f_n-f_m)\,\frac{J_{nm}J_{mn}}{E_m-E_n-\hbar\omega-i\delta}\\
+> &=-\int dE\,f(E)\,{\rm Tr}\big[J\,\delta(E-H)\,J\,G^R(E+\hbar\omega)\\
+> &\qquad+J\,G^A(E-\hbar\omega)\,J\,\delta(E-H)\big]
+> \end{aligned}
+> \tag{C15}
+> $$
+>
+> となる（$1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$、$1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$ を使った。添字は固有状態の成分）。
+> これに $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
+>
+> $$
+> \begin{aligned}
+> \chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
+> &\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+> &\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
+> \end{aligned}
+> \tag{C16}
+> $$
+>
+> となる。
 
 > $G^R(E)=(E-H+i\delta)^{-1}$ と $G^A(E)=(E-H-i\delta)^{-1}$ の違いは、極（$H$ の固有値）を実軸の下に置くか上に置くかの違いである。その差 $G^R-G^A=-2\pi i\,\delta(E-H)$ は、その極の作るデルタ関数である。
 > $G^R={\rm Re}\,G+i\,{\rm Im}\,G$、$G^A={\rm Re}\,G-i\,{\rm Im}\,G$（${\rm Re}\,G$、${\rm Im}\,G$ はどちらもエルミート。${\rm Im}\,G=-\pi\delta(E-H)$ は極だけの部分である）と分けると、虚部は ${\rm Re}\,G\cdot{\rm Im}\,G$ と ${\rm Im}\,G\cdot{\rm Im}\,G$ の組み合わせになる。
 > ${\rm Re}\,G$ を含む項のトレースは実数なので虚部には効かず、${\rm Im}\,G$ どうしの積（極の寄与）だけが残る。
 
-第 2 項で $E\to E+\hbar\omega$ とずらすと
-
-$$
-\begin{aligned}
-{\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
-&=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
-&\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
-\end{aligned}
-\tag{C17}
-$$
-
-となる。これは任意の $\omega$ と温度で成り立つ（$\omega\neq 0$ では光学伝導度を与える）。$\omega\to 0$、低温の極限では、式 (C12) と一致する。
+> 第 2 項で $E\to E+\hbar\omega$ とずらすと
+>
+> $$
+> \begin{aligned}
+> {\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
+> &=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
+> &\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
+> \end{aligned}
+> \tag{C17}
+> $$
+>
+> となる。これは任意の $\omega$ と温度で成り立つ（$\omega\neq 0$ では光学伝導度を与える）。$\omega\to 0$、低温の極限では、式 (C12) と一致する。
 
 式 (C12) のデルタ関数の積の和（積分）は分かりにくいと思うので、以下で説明しておく。
 $i\delta$ を有限に残すと、式 (C12) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる。
