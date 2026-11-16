@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b588d7c21 (source blob 5d8cfd9bc).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f8553892a (source blob 9889bd56c).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -422,7 +422,7 @@ Adding diagrams with crossed impurity lines, instead of the ladder, gives the we
 ## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
 
 > As a preliminary, we recall the geometry of the Brillouin zone. ${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
-> $T^3$ (the three-dimensional torus) is a three-dimensional space with doughnut-like periodicity in three directions. $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut.
+> $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$.
 > The cross-section $T^2(k_z)$ at fixed $k_z$ is itself a closed surface without boundary (a two-dimensional torus) that wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
 > A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
 
