@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a6b09980c (source blob 2d76dad47).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1c18712be (source blob 5ba10ad71).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -315,7 +315,7 @@ To compute the average of the product of Green functions, we go back to the orig
 ::: tip Preparation: the average when the impurities are placed at random
 **Before the average** (for one fixed configuration): the matrix element between plane waves $|{\bf k}\rangle$ is $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$.
 
-**After the average**: since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), the first-order average vanishes for ${\bf k}\neq{\bf k}'$, and at second order only the pairs on the same impurity $j$, whose phases cancel, remain:
+**After the average**: since the impurity positions are random, the phases $e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ cancel on averaging (random phases), the first-order average vanishes for ${\bf k}\neq{\bf k}'$, and at second order only the pairs on the same impurity $j$, whose phases cancel, remain:
 
 $$
 \begin{aligned}
@@ -325,7 +325,6 @@ $$
 \tag{C24}
 $$
 
-(the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
 :::
 
 With this we expand the two terms of Eq. (C23). Writing $G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$ ($G^+=G^R$, $G^-=G^A$), we consider ${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ (the two signs are taken independently; $(+,-)$ gives the first term, $(+,+)$ the second). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
@@ -349,7 +348,7 @@ G^{\pm}_{ {\bf k}{\bf k}'}={}&G^{\pm}_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^{\
 $$
 
 where $G^{\pm}_0({\bf k})=1/(E-\varepsilon_{\bf k}\pm i\delta)$, $\varepsilon_{\bf k}=\hbar^2k^2/2m$ and $V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$.
-We put this into Eq. (C25) and average. Of the terms first order in $V$ only the ${\bf q}=0$ component remains, and it is absorbed in $E_F$. The second-order terms fall into three groups according to where the two $V$ are, and with Eq. (C24)
+We put this into Eq. (C25) and average. Of the terms first order in $V$ only the component ${\bf k}={\bf k}'$, $n_iu(0)$, remains; it is a uniform energy shift and is absorbed in $E_F$. The second-order terms fall into three groups according to where the two $V$ are, and with Eq. (C24)
 
 $$
 \begin{aligned}
