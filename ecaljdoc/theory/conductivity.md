@@ -68,7 +68,7 @@ $$
 > 式 (C3) などに交換子が出る理由に注意しておく。これは $\hat A_{\rm H}(t)$ を $t$ で微分すると $d\hat A_{\rm H}/dt=(i/\hbar)[\hat H_0,\hat A]_{\rm H}$ と交換子が出ることから理解できる。
 > 時間発展はヒルベルト空間のユニタリーな回転で、微小な回転 $e^{i\epsilon\hat G}$ による演算子の変化は $e^{i\epsilon\hat G}\hat A\,e^{-i\epsilon\hat G}\simeq\hat A+i\epsilon[\hat G,\hat A]$ である。
 > 摂動 $-\hat B F$ が加わると、時間発展に $\hat B$ による微小な回転が加わるので、$\hat A$ の変化は $\hat B$ との交換子になる。
-> これは、$3\times 3$ のエルミート（実対称）行列 $M$ が微小な空間回転 $R=1+\epsilon L$（$L$ は反対称）で $RMR^{T}\simeq M+\epsilon[L,M]$ と変換を受けるのと同じである。
+> これは、$3\times 3$ のエルミート（実対称）行列 $M$ が微小な空間回転 $R=e^{\epsilon L}\simeq 1+\epsilon L$（$L$ は反対称）で $RMR^{T}\simeq M+\epsilon[L,M]$ と変換を受けるのと同じである。
 
 ### 電場への応答: 久保公式 {#response-to-field}
 
