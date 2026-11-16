@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit cf6eb3249 (source blob bceb91523).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 706117372 (source blob a7f47a538).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -451,11 +451,15 @@ In a three-dimensional crystal (orthorhombic for simplicity, with lattice consta
 The Berry connection and Berry curvature of the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions are
 
 $$
-{\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
-{\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k})
+\begin{aligned}
+&{\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
+{\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k}),\\
+&\Omega_n^z=-2\,{\rm Im}\sum_{m\neq n}\frac{\langle u_{n{\bf k}}|\partial_{k_x}H_{\bf k}|u_{m{\bf k}}\rangle\langle u_{m{\bf k}}|\partial_{k_y}H_{\bf k}|u_{n{\bf k}}\rangle}{(E_{n{\bf k}}-E_{m{\bf k}})^2}
+\end{aligned}
 \tag{C33}
 $$
 
+($H_{\bf k}=e^{-i{\bf k}\cdot{\bf r}}He^{i{\bf k}\cdot{\bf r}}$). The second line is the form as a sum over states, which follows directly from the Kubo formula.
 The intrinsic anomalous Hall conductivity (the sign depends on the orientation convention of ${\bf\Omega}$), split into cross-sections at each $k_z$, is
 
 $$
@@ -467,6 +471,9 @@ $$
 $$
 
 where $T^2(k_z)$ is the cross-section of the Brillouin zone at fixed $k_z$ and $S(k_z)$ the pocket in that cross-section.
+
+The integrand $\Omega_n^z$ does not depend on the choice of phases, in either term. Changing the phase as $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes the Berry connection as ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$, but $\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$. In the second line of Eq. (C33), too, the phase of each state cancels in the numerator. Only the Berry connection ${\bf a}_n$ depends on the choice of phases.
+When bands are degenerate, there are choices that mix the degenerate bands, so $\Omega_n$ is not determined band by band. The sum over the occupied bands, $\sum_n\Omega_n$, is determined.
 
 **First term (band 1)**: The integral on the closed surface $T^2(k_z)$, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since $T^2(k_z)$ is closed, this cannot be rewritten as an integral over a boundary.
 The $k_z$ integral gives $2\pi/c$, so the first term is $(e^2/h)\,C_1^z/c$. Together with the Chern numbers $C_1^x$, $C_1^y$ of the surfaces wrapping the Brillouin zone in the other directions,
