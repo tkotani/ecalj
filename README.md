@@ -6,6 +6,7 @@ First-principles electronic-structure package (PMT = APW + MTO basis; LDA/GGA an
 - With AI (New!): https://ecalj.github.io/ecaljdoc/manual/getstartedAI — give this page to an AI assistant to be guided through ecalj
 - Start here: [MD/README.md](MD/README.md)
 - Changes: [Changes.md](Changes.md)
+- **2026-11-14: old `ctrlg.<sname>.toml` files stop in the GW programs.** `ctrlg_update.py ctrlg.<sname>.toml` adds the five `[gw]` keys now required, with the former defaults (results unchanged). See [What's new](https://ecalj.github.io/ecaljdoc/manual/whatsnew)
 
 Developed by T. Kotani and co-workers, with Claude Code since 2026-02.
 
