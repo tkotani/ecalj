@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ef795df6a (source blob a6040bbfe).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 71063b6e4 (source blob de6614609).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -150,8 +150,7 @@ $$
 $$
 
 (the f-sum rule; the second equality uses $\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle=2\sum_m(E_m-E_n)|\langle n|\hat x|m\rangle|^2$). Hence the two agree.
-Under periodic boundary conditions $\hat x$ cannot be used, and $\chi^R_{JJ}(0)$ can be smaller than $ne^2\Omega/m$ by the terms with $f_n=f_m$ in Eq. (C10) that drop out (the intraband terms at the same ${\bf k}$). That difference is the Drude weight.
-Even under periodic boundary conditions, in a system with impurities (the setting of this document), if the system is first made infinitely large and the quantities are converted to per unit volume, and only then $\delta\to+0$ is taken, the Drude weight becomes 0 and the book's evaluation $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ holds.
+Even under periodic boundary conditions, in a system with impurities (the setting of this document), if the system is first made infinitely large and the quantities are converted to per unit volume, and only then $\delta\to+0$ is taken, the book's evaluation $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ holds.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
