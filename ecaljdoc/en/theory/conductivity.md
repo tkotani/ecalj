@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit fee2dae24 (source blob 7e5e3fcf9).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit dcc33b154 (source blob dffdeae1e).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -266,8 +266,7 @@ $$
 \tag{C20}
 $$
 
-which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on. This is only a provisional choice to get an estimate. For scattering by impurities, it is not obvious that the configuration average of the product of Green functions takes such a form with a width; showing it is the subject from the [average over the impurity configurations](#impurity-average) onward.
-Whether a real system is closer to Eq. (C19) or (C20) depends on how the matrix elements connect the states near $E_F$, and cannot be decided at this stage. In a system with impurities it is decided by computing the configuration average of the product of Green functions ([Section 3 onward](#impurity-average)).
+which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
 
 Eq. (C20)'s "the electrons on the Fermi surface contribute to the conduction" is connected to Drude's "all electrons are accelerated for the time $\tau$" as follows.
 The following factor on the right-hand side of Eq. (C20), for one band and per spin, becomes by integration by parts in $k_x$, using $v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$ ($\theta$ is the step function of the occupation, $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$; the boundary term vanishes by the periodicity of the Brillouin zone),
