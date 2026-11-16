@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3292920fb (source blob 9a84f1e2f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3518730c7 (source blob 8487b022f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -199,6 +199,7 @@ $$
 \tag{C15}
 $$
 
+The difference between $G^R(E)=(E-H+i\delta)^{-1}$ and $G^A(E)=(E-H-i\delta)^{-1}$ is whether the poles (the eigenvalues of $H$) are placed below or above the real axis. Their difference $G^R-G^A=-2\pi i\,\delta(E-H)$ is the delta function made by those poles.
 Writing $G^R={\rm Re}\,G+i\,{\rm Im}\,G$ and $G^A={\rm Re}\,G-i\,{\rm Im}\,G$ (${\rm Re}\,G$ and ${\rm Im}\,G$ are both Hermitian; ${\rm Im}\,G=-\pi\delta(E-H)$ is the part from the poles only), the imaginary part is a combination of ${\rm Re}\,G\cdot{\rm Im}\,G$ and ${\rm Im}\,G\cdot{\rm Im}\,G$.
 The traces of the terms with ${\rm Re}\,G$ are real and do not contribute to the imaginary part; only the products of ${\rm Im}\,G$ (the poles) remain. Shifting $E\to E+\hbar\omega$ in the second term,
 
