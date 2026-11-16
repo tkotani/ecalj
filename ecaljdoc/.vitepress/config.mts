@@ -54,9 +54,9 @@ const sidebarRoot = [
       { text: 'GW で用いる行列要素', link: '/theory/gw_zmel' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
-      { text: '付録：数学の補足', link: '/theory/appendix' },
+      { text: '電気伝導計算', link: '/theory/conductivity' },
       { text: '光学的性質', link: '/theory/optical_properties' },
-      { text: '電気伝導度計算の基本', link: '/theory/conductivity' },
+      { text: '付録', link: '/theory/appendix' },
     ]
   },
   {
@@ -86,7 +86,6 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
-  '付録：数学の補足': 'Appendix: mathematical notes',
   'ESM（真空のあるスラブ）': 'ESM (slabs with vacuum)',
   '力と構造の緩和': 'Forces and relaxation',
   '開発者向けメモ': 'Notes for developers',
@@ -122,7 +121,8 @@ const enText: Record<string, string> = {
   '実装メモ（GW の実装の詳細）': 'Implementation notes (details of the GW implementation)',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
-  '電気伝導度計算の基本': 'Basics of the electrical conductivity calculation',
+  '電気伝導計算': 'Electrical conduction',
+  '付録': 'Appendix',
 }
 function toEn(items: any[]): any[] {
   return items.map((it) => ({
