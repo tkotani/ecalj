@@ -1,9 +1,24 @@
 # What's new (summary)
 
-> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 296542c3a (source blob 2144868241ea).
+> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 54d72993d (source blob 73b38f44f054).
 
 A summary of the new features of ecalj and of the fixes that change results, newest first. The detailed record (all changes) is ecalj's
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md). Each item is explained on the linked page.
+
+## 2026-11: old ctrlg files stop in GW (how to fix)
+
+::: warning Change of usage (2026-11-14)
+`t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` of `[gw]` are now required.
+With an old `ctrlg.<sname>.toml` that lacks them, the GW programs (`gwsc` etc.) say so and stop.
+One line adds them. The values added are the former code defaults, so **the results do not change**.
+
+```bash
+ctrlg_update.py ctrlg.<sname>.toml      # the original is kept as ctrlg.<sname>.toml.bak_update
+```
+
+The old `esmr` and `t_sigmakbt` are no longer read; `ctrlg_update.py` converts them to `t_sigmaw`.
+The meaning of the keys is in [GW settings](./gwinput.md), the temperature keys in [kBT](./kBT.md).
+:::
 
 ## Recent major topics (2026-09 to 10)
 
