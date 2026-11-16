@@ -1,6 +1,6 @@
 # How to use the ecalj GPU version
 
-> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of commit e98a6e686 (source blob b9f88d14a1e0).
+> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of commit 4f74d9132 (source blob 0d87eb4d5d30).
 
 ecalj can perform QSGW calculations on GPUs.
 * The GPU is used for calculating the self-energy and the screened Coulomb interaction.
@@ -84,7 +84,7 @@ small errors are magnified by $(1-v\chi_0)^{-1}$. For one `hgw` run of LiTi2O4 6
 
 One QSGW iteration (`gwsc`, LiTi2O4 6³, tf32, 2 GPUs and 60 CPU cores) takes about 212 s, 80% of which is `hgw`.
 
-`--mp` alone has also been made the same as `tf32`. Most of the tf32 error is a uniform shrinking of Σc (<del class="clfix">−5×10⁻⁵ to −1×10⁻⁴ times Re Σc</del><span class="clfix">the relative change ΔΣ/Σ of Re Σc is −5×10⁻⁵ to −1×10⁻⁴</span>),
+`--mp` alone has also been made the same as `tf32`. Most of the tf32 error is a uniform shrinking of Σc (the relative change ΔΣ/Σ of Re Σc is −5×10⁻⁵ to −1×10⁻⁴),
 which comes from the way the tensor cores accumulate sums (truncation of the intermediate sums). The input rounding is round-to-nearest; it cannot be reduced further cheaply.
 It is assumed that tf32 is used for the intermediate iterations and that the last iterations are done in fp32 with `--prec-final=fp32:N` (since the error is not random but a uniform shrinking, it should vanish in the last fp32 iterations.
 **As of 2026-09-28 this usage has not actually been run and checked**. For 6³, even 10 iterations of tf32 alone gave bands agreeing with fp32 within rms 0.3 meV).
@@ -106,7 +106,7 @@ Writing e.g. `--prec-final=fp32:2` runs only the last 2 iterations of that run i
   and the precision of the Σc products rises from 3e-4 of TF32 to 1e-5 (correspondingly slower). With Ozaki, one split changes the precision by about one digit
 - Example (RTX 5090 ×2, one `hgw` run of LiTi2O4): the fp32 table is "single-precision complex products recast, double-precision products by GEMMul8 14, inverse by mixed1",
   and the tf32 row (the Σc products) becomes the FP16 recast (`realhgemm`). 6³ went from 833 s before to 367 s with fp32 and 173 s with tf32 (night of 2026-09-27);
-  9³ went from 5004 s to 2990 s with fp32 and 1975 s with tf32 (the version of the morning of the same day, with the tetrahedron-weight helper). <del class="clfix">The difference from the double-precision calculation in Re Σc also decreases from 2.4e-4 to 4.2e-5 eV</del><span class="clfix">For one fp32 `hgw` run of 6³, the difference from the double-precision calculation (maximum of Re Σc over all states) also decreases from 2.4e-4 eV with the versions up to 09-26 (cuBLAS complex products) to 4.2e-5 eV with the recast (`realsgemm`) (morning of 2026-09-27; restricted to E_F ±1 eV it is the 0.02 meV of the table above)</span>
+  9³ went from 5004 s to 2990 s with fp32 and 1975 s with tf32 (the version of the morning of the same day, with the tetrahedron-weight helper). For one fp32 `hgw` run of 6³, the difference from the double-precision calculation (maximum of Re Σc over all states) also decreases from 2.4e-4 eV with the versions up to 09-26 (cuBLAS complex products) to 4.2e-5 eV with the recast (`realsgemm`) (morning of 2026-09-27; restricted to E_F ±1 eV it is the 0.02 meV of the table above)
 - GEMMul8 is not used for small products (any side less than 64, or m·n·k less than 1e8) regardless of the table (the fixed cost of the splitting is larger than the product)
 
 ### Running several jobs on the same machine {#gpu-multijob}

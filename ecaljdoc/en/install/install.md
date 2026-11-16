@@ -1,6 +1,6 @@
 # Installing ecalj {#ecalj-install}
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit 296542c3a (source blob bcc3200dd82b).
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit 4f74d9132 (source blob 5ceb8f1c83f8).
 
 > ⚠️ **Migration to TOML (2026-05)** — The Fortran binaries read only `ctrlg.<sname>.toml`. Convert an old `ctrl.<sname>` / `GWinput` with `Legacy2toml.py <sname>`. For the whole guide and the list of migrated samples, see [Input files](../manual/toml_migration).
 
@@ -241,7 +241,7 @@ For a GPU build, do the following.
 
 To start from scratch, add `--clean`.
 
-This compiles and links the Fortran sources, copies all programs and scripts to bin, and runs the minimal install tests in `ecalj/Samples/TestInstall/` (<del class="clfix">about 5 minutes</del><span class="clfix">3 to 10 minutes</span>).
+This compiles and links the Fortran sources, copies all programs and scripts to bin, and runs the minimal install tests in `ecalj/Samples/TestInstall/` (3 to 10 minutes).
 
 *Hint:* For details of where the binaries are installed, see `./InstallAll.py` (default `BINDIR=~/bin`). Tools such as `getsyml`, `viewvesta`, and `vasp2ctrl` become soft links.
 

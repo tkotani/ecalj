@@ -1,6 +1,6 @@
 # MLO-gwsc — QSGW with the self-energy interpolated in the MLO representation (under development)
 
-> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 296542c3a (source blob 1aa8a46fb6b6).
+> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 4f74d9132 (source blob 632e22d87012).
 
 > **Status (2026-09-30)**: LiTi₂O₄ with 6³ and 9³ was run from LDA up to 40 iterations (§3.5). The differences in the MLO bands due to the precision of the GPU matrix products (tf32, fp32, fp64) are
 > a few meV or less, so the fast tf32 can be used. At 10 iterations convergence is still in progress; for 6³ a shoulder appears in an occupied band from iteration 20, and for 9³ the bands become fairly smooth at 40 iterations.
@@ -63,7 +63,7 @@ What GW produces is the band-indexed $\Sigma^\psi_{ij}(q)=\langle\psi_i|\hat\Sig
 
 $$\Sigma^{\rm MLO}=c^\dagger\,\Sigma^\psi\,c,\qquad c=\langle\psi|\tilde\chi\rangle \tag{5}$$
 
-This is literally $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ (<del class="clfix">states outside the window $\bar\theta$ are dropped, so it is exact only inside the window</del><span class="clfix">$c_i$ is nonzero only for bands where $\bar\theta$ is nonzero. If $\Sigma^\psi$ includes all bands for which $\bar\theta$ is not negligible (including the tail of $f$), i.e. if `ntq` is large enough, it is exact; if not, the tail is cut off</span>).
+This is literally $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ ($c_i$ is nonzero only for bands where $\bar\theta$ is nonzero. If $\Sigma^\psi$ includes all bands for which $\bar\theta$ is not negligible (including the tail of $f$), i.e. if `ntq` is large enough, it is exact; if not, the tail is cut off).
 The PMT basis is nonorthogonal, and its overlap matrix is written $S^{\rm PMT}_{mn}(k)=\langle\chi^{\rm PMT}_m(k)|\chi^{\rm PMT}_n(k)\rangle$.
 Expanding the eigenstates as $|\psi_i\rangle=\sum_m|\chi^{\rm PMT}_m\rangle\psi_{mi}$ ($\psi$ is the coefficient matrix), Eq. (4) gives $c=\psi^\dagger S^{\rm PMT}z^{\rm MLO}$.
 $\Sigma^{\rm MLO}(q)$ is brought to real space as $\Sigma^{\rm MLO}(R)$ (`QMLO_SigRs`), interpolated in k space, and at an arbitrary $k$ returned to the PMT basis and added to $H$ (`getsenex`).
@@ -112,7 +112,7 @@ An attempt to read at a $k$ not among the saved ones also stops by default (sinc
 
 Only once at the start of the chain, `lmf --writeham --mlo` and `mlo --mlo` make the **MLO index** in `HamRsMLO`.
 The index specifies which MTO channels are used as seeds (`ndimMTO` of them). $\Sigma^{\rm MLO}$ is a matrix on these channels, so the index is fixed throughout the chain (`--mlofreeze`).
-The window reference ($E_F$ and the conduction edge) is not included in the index; stage a' reads it at every iteration from `efermi.lmf` of that iteration's SCF (since 2026-09-26<span class="clfix">, evening commit 5118934d3</span>; §2.4).
+The window reference ($E_F$ and the conduction edge) is not included in the index; stage a' reads it at every iteration from `efermi.lmf` of that iteration's SCF (since 2026-09-26, evening commit 5118934d3; §2.4).
 On the other hand, the coefficients $z$ are rebuilt at ① in every iteration and follow the Hamiltonian.
 
 | # | Run | About $\tilde\chi$ |
@@ -195,7 +195,7 @@ mlo_lm = """
   For LiTi₂O₄ all atoms were made s+p+d (126 orbitals). With the default it would be 76 (s,p for Li and O). Which of 126 or 76 is better is not settled (§5)
 - **As a rule, at most one MLO per (site, lm).** Adding `mlo_lm2` (EH2) to the same lm collapses into the same function under the projection and makes $O$ nearly singular
   (the exception is s,p of cations with a conduction-band bottom spread into the voids: criterion 2 in [MLO](./mlo) §9; not tried in MLO-QSGW).
-  <span class="clfix">With the raw MLOs up to 2026-10-02, </span>Eq. (7) sandwiches $O^{-1}$ twice, so the effect is<span class="clfix"> (was)</span> squared (for NiO Ni d the condition number goes $1.3\times10^2\to7.4\times10^4$)<span class="clfix">. Now a nearly singular $O$ acts through $O^{-1/2}$ of the Löwdin orthogonalization</span>
+  With the raw MLOs up to 2026-10-02, Eq. (7) sandwiches $O^{-1}$ twice, so the effect is (was) squared (for NiO Ni d the condition number goes $1.3\times10^2\to7.4\times10^4$). Now a nearly singular $O$ acts through $O^{-1/2}$ of the Löwdin orthogonalization
 
 ### Running
 
@@ -291,7 +291,7 @@ A `run_snap.sh` snapshot consists of most of the "result" files plus `sigm.<snam
 | Mixing | `[gw] mixbeta = 0.5` (both `sigm` and $\Sigma^{\rm MLO}$) |
 | Basis | `pwmode = 11` |
 | Window | `mlo_method = 4`, $\Delta = w = 2.0$ eV (default) |
-| Machine | kt1 (RTX 5090 × 2), `gwsc 1 --mp --fp32` 10 times (code of 2026-09-26 <span class="clfix">before the evening fix of the window</span>) |
+| Machine | kt1 (RTX 5090 × 2), `gwsc 1 --mp --fp32` 10 times (code of 2026-09-26 before the evening fix of the window) |
 | Window reference | fixed to the $E_F$ at the start of the chain (LDA) (the current code uses the value of the SCF of each iteration, §1.5) |
 | One iteration | 6³: 950–1000 s, 9³: about 5300 s (89 min). `hgw` takes 86 % (6³) and 94 % (9³), and the processing for MLO about 1 %. After the 2026-09-27 speedup, 555 s for 6³ with fp32 |
 | Reference for comparison | conventional QSGW (MTO) 6³, `pwmode = 1`, β = 0.5, 10 iterations (only the LDA row uses `pwmode = 11`) |
@@ -384,7 +384,7 @@ we ran `gwsc 10 --prec=tf32` from LDA, followed by one iteration at a time up to
 - Run a **conventional chain with `pwmode = 11`** for 10 iterations and separate the difference of §3.4 into the difference of representation and the difference of `pwmode`
 - **Antiferromagnetic symmetry (`symgrpaf`)**: since 2026-09-30 QSGW works in a form where the GW programs compute both spins (ecalj `Samples/AFsymmetry`).
   Use together with `--mlo` has not been checked
-- The figures and numbers of §3.2–§3.4 are from the code of 2026-09-26 <span class="clfix">before the evening fix of the window</span> (window reference = $E_F$ at the start of the chain). The MLO bands of the current code after 9 iterations differ from them by
+- The figures and numbers of §3.2–§3.4 are from the code of 2026-09-26 before the evening fix of the window (window reference = $E_F$ at the start of the chain). The MLO bands of the current code after 9 iterations differ from them by
   rms 8 meV (max 23 meV), a nearly uniform drop of 7–10 meV (because the window reference moved by 0.55 eV; they separate from the second iteration). §3.5 uses the current code
 - `--prec-final=fp32:N` (fp32 only at the end) has not been run and checked yet (the difference between tf32 and fp32 is about 1 meV, as in §3.5)
 - Whether the 6³ shoulder (§3.5) is a property of the converged solution or disappears with further iterations is not known

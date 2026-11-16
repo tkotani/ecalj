@@ -1,6 +1,6 @@
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
-> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 296542c3a (source blob 12e5a5c2bbf2).
+> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 4f74d9132 (source blob 6db99d0d6c18).
 
 This page explains the `[gw]` keys that set the electronic temperature and the numerical smearing in GW and QSGW. There are separate keys for the $W$ side ($\chi_0$) and the $\Sigma$ side ($G$) (Table 4).
 `t_sigmaw` on the $\Sigma$ side is a numerical width that is always in effect; `t_tetrakbt` on the $\chi_0$ side is required: if positive it is the physical electronic temperature,
@@ -299,15 +299,15 @@ If `t_tetrakbt > 0`, `ef<-EFERMI_kbt=...`. In this case the program aborts if `E
 ## What makes metals rough, and `wcsmear`
 
 In QSGW for metals, the bands can become rough by tens of meV depending on the k mesh and the iteration, and a one-shot GW from LDA can produce spikes of the size of eV
-near $E_F$ (for LiTi₂O₄ at 1000 K or below, the bottom of the O 2p band is rough by 30 to 100 meV at $9^3$, and one-shot GW gives spikes of <del class="clfix">−2 to −3 eV</del><span class="clfix">−2.5 to −3.4 eV ($6^3$, 500 K and 1000 K)</span>). The cause is as follows
+near $E_F$ (for LiTi₂O₄ at 1000 K or below, the bottom of the O 2p band is rough by 30 to 100 meV at $9^3$, and one-shot GW gives spikes of −2.5 to −3.4 eV ($6^3$, 500 K and 1000 K)). The cause is as follows
 (the record of the investigation is in the ecalj development record (MD/research_kotani_log.md in the repository, not on the site), 2026-09-18 to 19).
 
-- **The culprit is the real-axis pole term of $\Sigma_c$** (cutting it changes the anomalous off-diagonal ⟨48|Σc|33⟩ from −13 to −0.35 eV<span class="clfix">. ⟨48|Σc|33⟩ is the off-diagonal element $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$ between band 48 ($E_F$+3.7 eV) and band 33 at $\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ in one-shot GW from LDA for LiTi₂O₄ $6^3$ at 1000 K. The same below</span>).
+- **The culprit is the real-axis pole term of $\Sigma_c$** (cutting it changes the anomalous off-diagonal ⟨48|Σc|33⟩ from −13 to −0.35 eV. ⟨48|Σc|33⟩ is the off-diagonal element $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$ between band 48 ($E_F$+3.7 eV) and band 33 at $\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ in one-shot GW from LDA for LiTi₂O₄ $6^3$ at 1000 K. The same below).
   The imaginary-axis integral, the mixing of sigm, the head at offset-Γ, and the $\omega$ interpolation method are unrelated.
 - What the pole term hits is the **t2g plasmon pole** in $W_c(q,\omega)$ at $q$ of the first shell
   ($\omega_p \simeq 1.78$ eV, width ≈ 0.1 eV. Checked directly with `--dumpW`). The pole term, for each intermediate state
   $n'$, picks up $W_c(\mathbf k,\, \varepsilon_{\mathbf q n} - \varepsilon_{\mathbf q-\mathbf k, n'})$ at
-  a single point, so a term whose $\varepsilon$ falls within ±0.1 eV of the pole <del class="clfix">receives ±50 a.u.</del><span class="clfix">receives a value of $W_c$ of about ±50 a.u. (at the pole $\mathrm{Re}\,W_c$ jumps from −54 to +4 a.u. to the next bin)</span>,
+  a single point, so a term whose $\varepsilon$ falls within ±0.1 eV of the pole receives a value of $W_c$ of about ±50 a.u. (at the pole $\mathrm{Re}\,W_c$ jumps from −54 to +4 a.u. to the next bin),
   and crosses to the other side of the pole whenever the eigenvalues move in the iteration (seesaw).
 - It vanishes monotonically with temperature: ⟨48|Σc|33⟩ = −27 / −13 / −3.2 / −1.9 eV (500 / 1000 / 1500 / 2000 K).
   This is why the runs at 2000 K and above had no trouble.
@@ -634,7 +634,7 @@ but this is not implemented. The error of `EFERMI_kbt` for Fe 3000 K $5^3$ (rela
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are determined by the tail of the kernel $E_F\pm15\,k_BT$ ($k_BT$ is `t_sigmaw`; `sig_window`).
 The occupation cut off is $f(15)=3\times10^{-7}$, and the window widens when `t_sigmaw` is raised. The center of the window and the center of the weights are the same Fermi level
 (`EFERMI_kbt` if `t_tetrakbt > 0`). In the code up to 2026-09-19 the window was determined by `esmr`, and at high temperatures occupations were cut off
-(<del class="clfix">`MD/kBT/history.md` §4</del><span class="clfix">the window was $E_F\pm10\,$`esmr`; for example, at 2000 K with `esmr` = 0.002 Ry, 17 % of the occupation is cut off. The development record is MD/kBT/history.md §4 in the repository, not on the site</span>).
+(the window was $E_F\pm10\,$`esmr`; for example, at 2000 K with `esmr` = 0.002 Ry, 17 % of the occupation is cut off. The development record is MD/kBT/history.md §4 in the repository, not on the site).
 
 ### Scope — what $\Sigma$ needs is the "sum", not the "difference"
 
@@ -692,7 +692,7 @@ The core levels are much deeper than $k_BT$, so the result is the T=0 value rega
 in systems where the number of core states $n_\mathrm{ctot}$ is smaller than the number of occupied bands (such as compounds of light elements whose only core is 1s), part of the valence states
 entered the exchange with the core. This can be judged by comparing `CoreEx mode: ef nspin nctot=` in `lsxC` with `valn=` (the number of valence electrons)
 (note that systems with semicore states in the valence have fewer core states). Fe ($n_\mathrm{ctot}=9$) and LiTi₂O₄ ($n_\mathrm{ctot}=46$) are not affected.
-<del class="clfix">The content of the errors is in `MD/kBT/history.md` §5.</del><span class="clfix">The errors were that the Fermi level of CoreEx was overwritten by `EFERMI_kbt`, so that occupied valence states entered the sum, and an index shift in `sxs_ekc` (both fixed on 2026-09-27). The development record is MD/kBT/history.md §5 in the repository, not on the site.</span>
+The errors were that the Fermi level of CoreEx was overwritten by `EFERMI_kbt`, so that occupied valence states entered the sum, and an index shift in `sxs_ekc` (both fixed on 2026-09-27). The development record is MD/kBT/history.md §5 in the repository, not on the site.
 
 ---
 
@@ -899,7 +899,7 @@ $\mathrm{Re}\,\Sigma(\varepsilon_j)$ used by QSGW stays at the $O((k_BT)^2)$ of 
 
 ### Note on initial correlations
 
-In <del class="clfix">8.2</del><span class="clfix">8.1–8.2</span> it was said that the interaction is switched on adiabatically from $\rho_0$ (thermal equilibrium without interaction), but
+In 8.1–8.2 it was said that the interaction is switched on adiabatically from $\rho_0$ (thermal equilibrium without interaction), but
 this **drops the initial correlations**. Strictly, one uses the Kadanoff–Baym path, in which the vertical imaginary-time branch
 $[t_0,\,t_0-i\beta]$ is added to the path, and the initial correlations are
 carried there (Danielewicz). In the equilibrium and adiabatic case the vertical branch separates from the real-time part,
