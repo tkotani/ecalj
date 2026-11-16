@@ -1,8 +1,8 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 5297a23aa (source blob c04d8c9cc).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c38b1155e (source blob 0ff49c04b).
 
-::: info Draft
+::: info Overview
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
 The key point is that the average over the impurity configurations is taken of a **product of Green functions** (averaging each one first and then multiplying is not enough).
 The sign convention of the Green function is the same as in [Basic I](./basic); the retarded Green function is $G^R(E)=1/(E-H+i\delta)$ and the advanced one $G^A(E)=1/(E-H-i\delta)$.
