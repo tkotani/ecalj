@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f822ee1e2 (source blob a35d059e5).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e10c799e9 (source blob 5496c9eba).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -421,7 +421,7 @@ Adding diagrams with crossed impurity lines, instead of the ladder, gives the we
 
 ## Note: integrals over the Brillouin zone and its topology $T^3$ {#bz-topology}
 
-Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
+Linear response computes integrals over $T^3$. We therefore review the geometry (topology) of the Brillouin zone. Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
 
 ${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
 $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$, a kind of closed three-dimensional space without boundary.
@@ -430,7 +430,7 @@ On $T^3$ there are three such kinds of loops ($T^1$), winding in the $k_x$, $k_y
 For example, the cross-section $T^2(k_z)$ at $k_z=$ const wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
 A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
 
-Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response). Linear response computes integrals over $T^3$.
+Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response).
 
 Thinking of it in simplified form, it is the case in which a phase factor $e^{i\theta(x,y,z)}$ is specified at each point $(x,y,z)$ of $T^3$. It may also be given in the form amplitude × phase, but the amplitude is not essential and can be considered later.
 
