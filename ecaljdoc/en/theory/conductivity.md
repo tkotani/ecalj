@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b4eb38623 (source blob ff5f4e68b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e7f4512e9 (source blob 4d5a176bc).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -653,7 +653,9 @@ A weak coupling only changes the Fermi surface and the Berry phase continuously;
 In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
 $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C21) moves it completely onto the Fermi surface.
 
-## Note: a finite sample with surfaces {#slab-edge}
+## Note: a finite sample with surfaces and the Thouless pump {#surface-and-pump}
+
+### A finite sample with surfaces {#slab-edge}
 
 In a finite sample with surfaces, the integer part can also be regarded as carried by edge states (states localized at the surface) passing through $E_F$. We look at an example below.
 
@@ -668,7 +670,7 @@ The Hall conductance of the sheet is $\sigma_{xy}=C\,e^2/h$, and this Hall curre
 > In the half-plane with an edge, the carried electrons can only accumulate at the edge (or leave it). Since the Hamiltonian returns to itself after one cycle of $k_y$, $C$ levels must have crossed $E_F$ in between. The bulk has a gap at $E_F$, so the crossing levels are localized at the edge, and their branches $E(k_y)$ cross the gap.
 > What is guaranteed is the net number (branches crossing upward minus those crossing downward); details of the surface can add or remove pairs of upward and downward branches, but the net $C$ does not change unless the bulk gap closes. The direction of crossing (the slope of $E(k_y)$) is the direction of the group velocity $v_y$, so the net motion is in one direction.
 
-## Note: the Thouless pump {#thouless-pump}
+### The Thouless pump {#thouless-pump}
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
 To each time $t$ we assign the phase obtained by integrating the Berry connection of the periodic parts $|u_{nk}(t)\rangle$ of the occupied Bloch functions over the $T^1$ of $k$ (the one-dimensional Brillouin zone), the Zak phase. The polarization is written with it (R. D. King-Smith and D. Vanderbilt, Phys. Rev. B **47**, 1651 (1993)):
