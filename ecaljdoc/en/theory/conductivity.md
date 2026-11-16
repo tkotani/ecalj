@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 84344a855 (source blob 6e65fd348).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit bf52c0ef0 (source blob 9b6b69800).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -533,7 +533,7 @@ has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one look
 Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C37).
 
 The function $e^{i\theta(x,y,z)}$ on $T^3$, with functions that deform continuously into each other regarded as the same, is characterized only by the winding numbers $(w_x,w_y,w_z)$ on the loops ($T^1$) in three directions. What about closed surfaces ($T^2$)?
-The wave function is smooth wherever one looks (if the gap is open, a smooth phase can be chosen near any point). Even so, the phase cannot always be chosen as a single smooth function on the whole $T^2$. Cut the cross-section $T^2(k_z)$ open along the loop $k_y=0$ (the $T^1$ in the $k_x$ direction) into a cylinder, and choose a smooth phase on the cylinder. On the two sides of the cut ($k_y=0$ and $k_y=2\pi/b$, the same points) the states differ only by a phase: $|u_{(k_x,2\pi/b)}\rangle=e^{i\phi(k_x)}|u_{(k_x,0)}\rangle$.
+The wave function is smooth wherever one looks. Even so, the phase cannot always be chosen as a single smooth function on the whole $T^2$. Cut the cross-section $T^2(k_z)$ open along the loop $k_y=0$ (the $T^1$ in the $k_x$ direction) into a cylinder, and choose a smooth phase on the cylinder. On the two sides of the cut ($k_y=0$ and $k_y=2\pi/b$, the same points) the states differ only by a phase: $|u_{(k_x,2\pi/b)}\rangle=e^{i\phi(k_x)}|u_{(k_x,0)}\rangle$.
 Then ${\bf a}$ differs by $\nabla\phi$ on the two sides of the cut, and Stokes' theorem gives
 
 $$
