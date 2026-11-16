@@ -300,17 +300,19 @@ $$
 
 ## 不純物の配置についての平均 {#impurity-average}
 
-<span style="color:#d00">式 (C13) は、不純物の配置を一つ決めたときの式である。観測される伝導度は、これを不純物の配置について平均したもの $\langle\cdots\rangle_{\rm imp}$ である。${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると（${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ は実数で、${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ は ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$ の複素共役である）</span>
+<span style="color:#d00">式 (C13) は、不純物の配置を一つ決めたときの式である。${\rm Im}\,G^R=(G^R-G^A)/2i$ と書くと、$G^A=(G^R)^\dagger$ から ${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ は実数、${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ は ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$ の複素共役なので、式 (C23) の一行目が配置ごとに成り立つ（近似は使っていない）。観測される伝導度は、式 (C13) を不純物の配置について平均したもので、二行目になる（$G$ はすべて $E=E_F$）:</span>
 
 $$
 \begin{aligned}
-\sigma_{xx}={}&\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}\\
-&-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^R(E_F)\big]\Big\rangle_{\rm imp}\Big\}
+{\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R\,\hat v_x\,{\rm Im}\,G^R\big]&=\frac{1}{2}\Big\{ {\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^A\big]\\
+&\qquad-{\rm Re}\,{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^R\big]\Big\},\\
+\sigma_{xx}&=\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^A\big]\Big\rangle_{\rm imp}\\
+&\qquad-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^R\big]\Big\rangle_{\rm imp}\Big\}
 \end{aligned}
 \tag{C23}
 $$
 
-<span style="color:#d00">となる。まず第 1 項を調べる（第 2 項は [Drude の式](#drude) の節で見積もる）。</span>
+<span style="color:#d00">二つの項を、以下でまとめて展開する（第 2 項が小さいことは [Drude の式](#drude) の節で見る）。</span>
 グリーン関数の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のグリーン関数である。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
 
 ::: tip 準備: 不純物がランダムに配置されているときの平均
@@ -365,17 +367,7 @@ $$
 $$
 
 となる。ここで $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$ である。
-右辺の各項は次のとおりである。
-
-- <span style="color:#d00">第 1 項: 不純物の無い項。</span>
-- <span style="color:#d00">第 2 項と第 3 項（</span><span style="color:#1f6fd0">青</span><span style="color:#d00">）: 一本の $G$ の中の二つの $V$ を組にした項で、自己エネルギー $\Sigma_2$ が一つ挟まる。一本の $G$ の中の平均 $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$ は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残るので、平均した後の $G$ は ${\bf k}$ について対角（並進対称）になる。高次まで足すと自己エネルギーになる（次節）。</span>
-- <span style="color:#d00">第 4 項（</span><span style="color:#d26a00">橙</span><span style="color:#d00">）: $G^{\pm}$ の $V$ と $G^{\pm'}$ の $V$ を組にした項。二つの $G$ の積を平均したことで残る、同じ不純物で散乱される相関で、一本ずつ平均してから掛けると出てこない。高次まで足すとバーテックス補正になる（[バーテックス補正](#vertex-correction) の節）。</span>
-
-<span style="color:#d00">$V$ について高次の項でも、$V$ の積の平均は対の平均の積の和になり、対の組み方は上のどちらかである（対が互いに交差する組み方は弱局在の補正を与えるが、ここでは扱わない）。</span>
-
-## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
-
-<span style="color:#d00">式 (C27) の第 2 項（青）にある $G^{\pm}_0\Sigma^{\pm}_2G^{\pm}_0$ は、$\Sigma_2$ を一つ挟んだ形である。$V$ について高次まで見ると、一本の $G$ の中で対を組む項には、$\Sigma_2$ を二つ、三つと挟んだものが出てくる。対が互いに交差しないものだけを取る（Born 近似）と、それらは等比級数になって</span>
+<span style="color:#d00">式 (C27) の第 2 項と第 3 項（</span><span style="color:#1f6fd0">青</span><span style="color:#d00">）は、一本の $G$ の中の二つの $V$ を組にした項で、$\Sigma_2$ を一つ挟んだ形である（一本の $G$ の中の平均は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残るので、${\bf k}$ について対角になる）。$V$ について高次まで見ると、$\Sigma_2$ を二つ、三つと挟んだものが出てくる。対が互いに交差しないものだけを取る（Born 近似）と、それらは等比級数になって</span>
 
 $$
 \begin{aligned}
@@ -385,13 +377,27 @@ $$
 \tag{C28}
 $$
 
-<span style="color:#d00">にまとまる（$\Sigma^{\pm}=\Sigma^{\pm}_2$）。つまり、$G$ を平均する代わりに、この $\bar G$（並進対称で、${\bf k}$ について対角）を考え、その積を取ればよい。式 (C27) の第 2 項と第 3 項は、$\bar G^{\pm}$、$\bar G^{\pm'}$ を $\Sigma$ について一次まで展開したものにあたる。</span>
-$\Sigma_2$ の和を積分にすると、自己エネルギーは
+<span style="color:#d00">にまとまる（$\Sigma^{\pm}=\Sigma^{\pm}_2$）。$\bar G$ は並進対称で、${\bf k}$ について対角である。</span>
+<span style="color:#d00">第 4 項（</span><span style="color:#d26a00">橙</span><span style="color:#d00">）は、$G^{\pm}$ の $V$ と $G^{\pm'}$ の $V$ を組にした項で、二つの $G$ の積を平均したことで残る、同じ不純物で散乱される相関である（一本ずつ平均してから掛けると出てこない）。この型の項を落とすと、式 (C23) は</span>
+
+$$
+\begin{aligned}
+\sigma_{xx}=\frac{\hbar e^2}{\pi\Omega}\sum_{\bf k}v_x({\bf k})^2\Big\{&\bar G^R({\bf k},E_F)\,\bar G^A({\bf k},E_F)\\
+&-{\rm Re}\,\bar G^R({\bf k},E_F)^2\Big\}
+\end{aligned}
+\tag{C29}
+$$
+
+<span style="color:#d00">となる。以下、$\Sigma$ を求め（次節）、式 (C29) の二つの項を評価する（[Drude の式](#drude) の節）。第 4 項の型の項は [バーテックス補正](#vertex-correction) の節で取り入れる。対が互いに交差する組み方は弱局在の補正を与えるが、ここでは扱わない。</span>
+
+## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
+
+<span style="color:#d00">式 (C28) の $\Sigma^{\pm}$ を具体的に求める。</span>$\Sigma_2$ の和を積分にすると、自己エネルギーは
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C29}
+\tag{C30}
 $$
 
 で、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
@@ -401,14 +407,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C30}
+\tag{C31}
 $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C27) の第 4 項（橙）とその高次を落とす近似（一本ずつ平均してから掛ける近似）でも、$\bar G$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
+式 (C29) では、$\bar G$ に自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
@@ -417,23 +423,23 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C31}
-$$
-
-で、これは式 (C20) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C23) の<span style="color:#d00">第 1 項</span>は
-
-$$
-\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
 \tag{C32}
 $$
 
+で、これは式 (C20) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C29) の第 1 項は
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C33}
+$$
+
 となり、式 (C22) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
-<span style="color:#d00">式 (C23) の第 2 項では、$\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ の二つの極がともに実軸の下にあるので、式 (C31) のように $\tau$ に比例して大きくなることがない。第 1 項に比べて $\hbar/(E_F\tau)$ の程度だけ小さいので落とした。</span>
+<span style="color:#d00">式 (C29) の第 2 項では、$\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ の二つの極がともに実軸の下にあるので、式 (C32) のように $\tau$ に比例して大きくなることがない。第 1 項に比べて $\hbar/(E_F\tau)$ の程度だけ小さいので落とした。</span>
 素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均を、式 (C27) の第 4 項（橙）の型の項を全次数まで足し上げて取る（はしご型。Born 近似の自己エネルギー (C29) と組になる近似）。
+積の平均を、式 (C27) の第 4 項（橙）の型の項を全次数まで足し上げて取る（はしご型。Born 近似の自己エネルギー (C30) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -441,23 +447,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C33}
+\tag{C34}
 $$
 
-を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C31) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
+を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C32) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$、すなわち $\gamma=\tau_{\rm tr}/\tau$ を得る。ここで
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C34}
+\tag{C35}
 $$
 
-は輸送の緩和時間である。式 (C32) の片方の $v_x$ を $\Gamma_x$ に替えると
+は輸送の緩和時間である。式 (C33) の片方の $v_x$ を $\Gamma_x$ に替えると
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C35}
+\tag{C36}
 $$
 
 となる（自由電子では $ne^2\tau_{\rm tr}/m$）。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
@@ -504,7 +510,7 @@ $$
 {\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k}),\\
 &\Omega_n^z=-2\,{\rm Im}\sum_{m\neq n}\frac{\langle u_{n{\bf k}}|\partial_{k_x}H_{\bf k}|u_{m{\bf k}}\rangle\langle u_{m{\bf k}}|\partial_{k_y}H_{\bf k}|u_{n{\bf k}}\rangle}{(E_{n{\bf k}}-E_{m{\bf k}})^2}
 \end{aligned}
-\tag{C36}
+\tag{C37}
 $$
 
 とする（$H_{\bf k}=e^{-i{\bf k}\cdot{\bf r}}He^{i{\bf k}\cdot{\bf r}}$）。二行目は状態についての和の形で、久保公式からそのまま出る形である。内因性の異常ホール伝導度は（符号は ${\bf\Omega}$ の向きの約束による）、$k_z$ ごとの断面に分けて
@@ -514,12 +520,12 @@ $$
 \sigma_{xy}&=\frac{e^2}{\hbar}\sum_n\int_{\rm occ}\frac{d^3k}{(2\pi)^3}\,\Omega_n^z\\
 &=\frac{e^2}{h}\,\frac{1}{2\pi}\int dk_z\,\Big[\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k+\frac{1}{2\pi}\int_{S(k_z)}\Omega_2^z\,d^2k\Big]
 \end{aligned}
-\tag{C37}
+\tag{C38}
 $$
 
 と書ける。$T^2(k_z)$ は $k_z$ を止めたブリルアン域の断面、$S(k_z)$ はその断面でのポケットである。
 
-被積分関数 $\Omega_n^z$ は、どちらの項も位相の選び方によらない。位相を $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ と変えるとベリー接続は ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$ と変わるが、$\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$ だからである。式 (C36) の二行目でも、各状態の位相が分子で打ち消し合っている。位相の選び方に依るのは、ベリー接続 ${\bf a}_n$ だけである。
+被積分関数 $\Omega_n^z$ は、どちらの項も位相の選び方によらない。位相を $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ と変えるとベリー接続は ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$ と変わるが、$\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$ だからである。式 (C37) の二行目でも、各状態の位相が分子で打ち消し合っている。位相の選び方に依るのは、ベリー接続 ${\bf a}_n$ だけである。
 バンドが縮退していると、縮退したバンドを混ぜる選び方があるので、$\Omega_n$ はバンドごとには決まらない。占有バンドについての和 $\sum_n\Omega_n$ は決まる。
 
 **第 1 項（バンド 1）**: 閉じた面 $T^2(k_z)$ の上の積分 $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$ はチャーン数で、整数である。バンド 1 にはギャップがあるので $k_z$ によらない。$T^2(k_z)$ は閉じた面なので、これを境界の上の積分には書き直せない。
@@ -528,7 +534,7 @@ $k_z$ の積分は $2\pi/c$ を与えるので、第 1 項は $(e^2/h)\,C_1^z/c$
 $$
 \sigma_{ij}^{(1)}=\frac{e^2}{2\pi h}\,\epsilon_{ijl}\,G_l,\qquad
 {\bf G}=2\pi\Big(\frac{C_1^x}{a},\frac{C_1^y}{b},\frac{C_1^z}{c}\Big)
-\tag{C38}
+\tag{C39}
 $$
 
 で、${\bf G}$ は逆格子ベクトルである（B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)）。
@@ -537,7 +543,7 @@ $$
 
 $$
 \int_{S(k_z)}\Omega_2^z\,d^2k=\oint_{\partial S(k_z)}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2(k_z)
-\tag{C39}
+\tag{C40}
 $$
 
 となる。輪 $\partial S(k_z)$ はフェルミ面を $k_z$ で切った線（$z$ 向きの磁場の中のサイクロトロン軌道）で、$\gamma_2(k_z)$ はその上のベリー位相である。
@@ -545,17 +551,17 @@ $$
 
 $$
 \gamma_2(k_z)\to\gamma_2(k_z)-2\pi w
-\tag{C40}
+\tag{C41}
 $$
 
 と変わるからである（$w$ は $\phi$ が輪を一周する間に $2\pi$ だけ何回まわるか、という整数）。どの $w$ が正しいか（$S(k_z)$ の内側で滑らかにつながるか）は、フェルミ面の内側の状態を見ないと決まらない。
 
-まとめると、$\sigma_{ij}$ のうちフェルミ面から決まるのは、式 (C38) の形の項（逆格子ベクトル ${\bf G}$ の分）を法とした値だけで、その整数の部分はフェルミ海の情報である（Haldane の結論）。
-例として、バンド 2（フェルミ面とその上の状態）はまったく同じで、バンド 1 だけが違う二つの系 A、B を考える。例えば金属の下に、結合させずに、普通の絶縁体（A、${\bf G}=0$）を置くか、$z$ 向きに周期 $c$ で積んだチャーン絶縁体の層（B、$C_1^z=1$）を置くかである。式 (C37) から
+まとめると、$\sigma_{ij}$ のうちフェルミ面から決まるのは、式 (C39) の形の項（逆格子ベクトル ${\bf G}$ の分）を法とした値だけで、その整数の部分はフェルミ海の情報である（Haldane の結論）。
+例として、バンド 2（フェルミ面とその上の状態）はまったく同じで、バンド 1 だけが違う二つの系 A、B を考える。例えば金属の下に、結合させずに、普通の絶縁体（A、${\bf G}=0$）を置くか、$z$ 向きに周期 $c$ で積んだチャーン絶縁体の層（B、$C_1^z=1$）を置くかである。式 (C38) から
 
 $$
 \sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{hc}
-\tag{C41}
+\tag{C42}
 $$
 
 で、この差はフェルミ面からは区別できない。極端な場合が三次元の量子ホール状態の絶縁体で、$S$ が空（フェルミ面が無い）なのに $\sigma_{xy}=C_1^z e^2/hc$ である。
@@ -573,7 +579,7 @@ $X$ の中の周回路 $L$ を一周する間に $e^{i\theta}$ が単位円を�
 
 $$
 w_L=\frac{1}{2\pi}\oint_L\nabla\theta\cdot d{\bf r}
-\tag{C42}
+\tag{C43}
 $$
 
 は整数である。$\theta$ は一周で元の値に戻る必要はなく、$e^{i\theta}$ が戻ればよいので、$2\pi w_L$ だけずれてよい。
@@ -585,16 +591,16 @@ $$
 
 $$
 e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac{w_y}{b},\frac{w_z}{c}\Big)
-\tag{C43}
+\tag{C44}
 $$
 
-は、どこで見ても滑らかで特異点も無いのに、巻き数 $(w_x,w_y,w_z)$ を持つ。巻き数の組は逆格子ベクトルそのものである（式 (C38) の ${\bf G}$ と同じ形）。トポロジカルな量子化のエッセンスはこれである。
+は、どこで見ても滑らかで特異点も無いのに、巻き数 $(w_x,w_y,w_z)$ を持つ。巻き数の組は逆格子ベクトルそのものである（式 (C39) の ${\bf G}$ と同じ形）。トポロジカルな量子化のエッセンスはこれである。
 
-波動関数に当てはめると、ブロッホ関数の周期部分 $|u_{n{\bf k}}\rangle$ は、ブリルアン域という閉じた三次元空間（$T^3$）の各点 ${\bf k}$ に、振幅 × 位相の形で与えられている（$(x,y,z)$ を ${\bf k}$ と読む）。上の議論は、その振幅を固定して、位相因子 $e^{i\theta({\bf k})}$ だけを考えたものにあたる。ゲージ変換 $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ は振幅を変えずに位相だけを変えるもので、その巻き数が式 (C40) の $w$ である。
+波動関数に当てはめると、ブロッホ関数の周期部分 $|u_{n{\bf k}}\rangle$ は、ブリルアン域という閉じた三次元空間（$T^3$）の各点 ${\bf k}$ に、振幅 × 位相の形で与えられている（$(x,y,z)$ を ${\bf k}$ と読む）。上の議論は、その振幅を固定して、位相因子 $e^{i\theta({\bf k})}$ だけを考えたものにあたる。ゲージ変換 $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ は振幅を変えずに位相だけを変えるもので、その巻き数が式 (C41) の $w$ である。
 
 $T^3$ の上の関数 $e^{i\theta(x,y,z)}$ は、連続変形で移り合うものを同じとみなすと、三つの向きの周回路（$T^1$）の巻き数 $(w_x,w_y,w_z)$ だけで特徴づけられる。では閉じた面（$T^2$）ではどうか。
-波動関数の位相は、どこで見ても滑らかなのに、$T^2$ 全体で一つの滑らかな関数には選べないことがある。そのときの食い違いの巻き数がチャーン数（式 (C37) の後の $C_1^z$）である。
-$T^3$ には閉じた $T^2$ が 3 種類あるので、その上のチャーン数も三つ $(C_1^x,C_1^y,C_1^z)$ あり、式 (C38) の ${\bf G}$ を与える。
+波動関数の位相は、どこで見ても滑らかなのに、$T^2$ 全体で一つの滑らかな関数には選べないことがある。そのときの食い違いの巻き数がチャーン数（式 (C38) の後の $C_1^z$）である。
+$T^3$ には閉じた $T^2$ が 3 種類あるので、その上のチャーン数も三つ $(C_1^x,C_1^y,C_1^z)$ あり、式 (C39) の ${\bf G}$ を与える。
 フェルミ面がある場合は、フェルミ面のトポロジーも関係してくる（例えば閉じたポケットのフェルミ面は、中にバンドの縮退点が無ければチャーン数を持てない）が、ここでは立ち入らない。
 
 **Thouless のポンプ**（D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)）: 一次元の絶縁体（格子定数 $a$）のハミルトニアンを、周期 $T$ でゆっくり変える（$H(t+T)=H(t)$）。占有バンドと非占有バンドの間のギャップは、一周期の間ずっと開いているとする。
@@ -603,20 +609,20 @@ $T^3$ には閉じた $T^2$ が 3 種類あるので、その上のチャーン�
 $$
 \gamma(t)=\sum_{n\in{\rm occ}}\oint_{T^1}i\langle u_{nk}(t)|\partial_k u_{nk}(t)\rangle\,dk,\qquad
 P(t)=-\frac{e}{2\pi}\,\gamma(t)
-\tag{C44}
+\tag{C45}
 $$
 
-（電子の電荷を $-e$ とした）。$\gamma$ はゲージ変換で $2\pi$ の整数倍だけ変わる（式 (C40)）ので、$P$ は $e$ を法としてしか決まらない。電子を一つ隣の単位胞に移しても同じ結晶であることに対応する。
+（電子の電荷を $-e$ とした）。$\gamma$ はゲージ変換で $2\pi$ の整数倍だけ変わる（式 (C41)）ので、$P$ は $e$ を法としてしか決まらない。電子を一つ隣の単位胞に移しても同じ結晶であることに対応する。
 断熱的に変えるとき、流れる電流は $dP/dt$ で、一周期で単位胞の境界を通る電荷は
 
 $$
 Q=\int_0^T\frac{dP}{dt}\,dt=-\frac{e}{2\pi}\big[\gamma(T)-\gamma(0)\big]=-eC
-\tag{C45}
+\tag{C46}
 $$
 
-である（$\gamma(t)$ は $t$ について連続にたどる）。$H(T)=H(0)$ なので $e^{i\gamma(T)}=e^{i\gamma(0)}$ で、$C$ は時間の周回路 $T^1$ から単位円への写像 $t\mapsto e^{i\gamma(t)}$ の巻き数 (C42) である。一周期で運ばれる電荷は $e$ の整数倍に量子化される。
+である（$\gamma(t)$ は $t$ について連続にたどる）。$H(T)=H(0)$ なので $e^{i\gamma(T)}=e^{i\gamma(0)}$ で、$C$ は時間の周回路 $T^1$ から単位円への写像 $t\mapsto e^{i\gamma(t)}$ の巻き数 (C43) である。一周期で運ばれる電荷は $e$ の整数倍に量子化される。
 
 ここには特異点は出てこない。ギャップはずっと開いていて、$|u_{nk}(t)\rangle$ は $(k,t)$ について滑らかである。整数は、$t$ が周期的で周回路が縮められないことだけから来る。
-$C$ は $(k,t)$ の作る $T^2$ の上のチャーン数でもあり、式 (C38) の $C_1^z$ で $k_y$ を $t$ に置き換えたものと同じ種類の量である。パラメータの空間に広げて見ると、ハミルトニアンの描くループが、ループの外にあるギャップの閉じる点の周りを何回まわるかを数えている（例えば Rice–Mele 模型では、二量化と副格子のポテンシャルの差の描く円が、両方とも 0 の点を囲むとき $C=\pm 1$）。
+$C$ は $(k,t)$ の作る $T^2$ の上のチャーン数でもあり、式 (C39) の $C_1^z$ で $k_y$ を $t$ に置き換えたものと同じ種類の量である。パラメータの空間に広げて見ると、ハミルトニアンの描くループが、ループの外にあるギャップの閉じる点の周りを何回まわるかを数えている（例えば Rice–Mele 模型では、二量化と副格子のポテンシャルの差の描く円が、両方とも 0 の点を囲むとき $C=\pm 1$）。
 
 端のある有限の鎖では、一周期の間に一方の端から他方の端へ電荷 $-eC$ が運ばれる。バルクにはギャップがあるので、これは端の状態の準位がギャップを横切ることで起きる（一周期の間に $C$ 本）。これが一次元版のバルクとエッジの対応である。二次元のホール伝導度でも、試料を筒にして磁束を通すと $k_y$ が $t$ の役をして同じ議論になる（Laughlin の議論）。
