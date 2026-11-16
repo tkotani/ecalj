@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3351d0336 (source blob da962bf27).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 7804b8055 (source blob d4952c3ad).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -190,45 +190,45 @@ $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) 
 >
 > However, replacing $G^T$ in Eq. (C14) simply by $G^R$ does not make it retarded. $G^T$ has the form of $G^A$ for the occupied states and of $G^R$ for the unoccupied states, so the rewriting into the retarded form is done on the response function $\chi$ (moving all the poles in $\omega$ to the lower half-plane, $\omega\to\omega+i\delta$).
 
-We rewrite Eq. (C4) with Green functions. Writing $J_{nm}=\langle n|J|m\rangle$ and $f_n=\int dE\,f(E)\,\delta(E-E_n)$, and setting $E=E_n$ in the sum with $f_n$ and $E=E_m$ in the sum with $f_m$,
-
-$$
-\begin{aligned}
-\chi^R_{JJ}(\omega)&=\sum_{nm}(f_n-f_m)\,\frac{J_{nm}J_{mn}}{E_m-E_n-\hbar\omega-i\delta}\\
-&=-\int dE\,f(E)\,{\rm Tr}\big[J\,\delta(E-H)\,J\,G^R(E+\hbar\omega)\\
-&\qquad+J\,G^A(E-\hbar\omega)\,J\,\delta(E-H)\big]
-\end{aligned}
-\tag{C15}
-$$
-
-(using $1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$ and $1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$; the subscripts are components in the eigenstates).
-Inserting $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$, at any temperature
-
-$$
-\begin{aligned}
-\chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
-&\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
-&\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
-\end{aligned}
-\tag{C16}
-$$
+> We rewrite Eq. (C4) with Green functions. Writing $J_{nm}=\langle n|J|m\rangle$ and $f_n=\int dE\,f(E)\,\delta(E-E_n)$, and setting $E=E_n$ in the sum with $f_n$ and $E=E_m$ in the sum with $f_m$,
+>
+> $$
+> \begin{aligned}
+> \chi^R_{JJ}(\omega)&=\sum_{nm}(f_n-f_m)\,\frac{J_{nm}J_{mn}}{E_m-E_n-\hbar\omega-i\delta}\\
+> &=-\int dE\,f(E)\,{\rm Tr}\big[J\,\delta(E-H)\,J\,G^R(E+\hbar\omega)\\
+> &\qquad+J\,G^A(E-\hbar\omega)\,J\,\delta(E-H)\big]
+> \end{aligned}
+> \tag{C15}
+> $$
+>
+> (using $1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$ and $1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$; the subscripts are components in the eigenstates).
+> Inserting $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$, at any temperature
+>
+> $$
+> \begin{aligned}
+> \chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
+> &\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+> &\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
+> \end{aligned}
+> \tag{C16}
+> $$
 
 > The difference between $G^R(E)=(E-H+i\delta)^{-1}$ and $G^A(E)=(E-H-i\delta)^{-1}$ is whether the poles (the eigenvalues of $H$) are placed below or above the real axis. Their difference $G^R-G^A=-2\pi i\,\delta(E-H)$ is the delta function made by those poles.
 > Writing $G^R={\rm Re}\,G+i\,{\rm Im}\,G$ and $G^A={\rm Re}\,G-i\,{\rm Im}\,G$ (${\rm Re}\,G$ and ${\rm Im}\,G$ are both Hermitian; ${\rm Im}\,G=-\pi\delta(E-H)$ is the part from the poles only), the imaginary part is a combination of ${\rm Re}\,G\cdot{\rm Im}\,G$ and ${\rm Im}\,G\cdot{\rm Im}\,G$.
 > The traces of the terms with ${\rm Re}\,G$ are real and do not contribute to the imaginary part; only the products of ${\rm Im}\,G$ (the poles) remain.
 
-Shifting $E\to E+\hbar\omega$ in the second term,
-
-$$
-\begin{aligned}
-{\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
-&=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
-&\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
-\end{aligned}
-\tag{C17}
-$$
-
-This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C12).
+> Shifting $E\to E+\hbar\omega$ in the second term,
+>
+> $$
+> \begin{aligned}
+> {\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
+> &=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
+> &\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
+> \end{aligned}
+> \tag{C17}
+> $$
+>
+> This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C12).
 
 The sum (integral) over the product of delta functions in Eq. (C12) may be hard to read, so it is explained here.
 Keeping $i\delta$ finite, the delta functions in Eq. (C12) become Lorentzians of width $\delta$, $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$.
