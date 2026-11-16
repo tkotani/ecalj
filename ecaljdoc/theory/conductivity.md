@@ -129,7 +129,8 @@ $$
 $$
 
 で、違いは第 2 項だけ、つまり $\big[\chi^R_{JJ}(0)-ne^2\Omega/m\big]/(i\omega\Omega)$ である。
-この評価 $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ が成り立つのは、不純物のある系（この文書の設定）で、まず系を無限大に大きくして単位体積あたりの量に直してから $\delta\to+0$ を取るときである。
+$\chi^R_{JJ}(0)$ は式 (C4) で $\omega=0$ として $\chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2/(E_m-E_n)$ と評価すればよい。位置の演算子 $\hat x$ が使える（周期境界条件でない）有限の系なら、$[\hat x,\hat H_0]=i\hbar\hat p_x/m$ から $\langle n|\hat J^0_x|m\rangle=(ie/\hbar)(E_m-E_n)\langle n|\hat x|m\rangle$ で、$\chi^R_{JJ}(0)=(e^2/\hbar^2)\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle=Ne^2/m=ne^2\Omega/m$ となり（f 総和則）、違いは消える。周期境界条件では $\hat x$ が使えず、$f_n=f_m$ の項（同じ ${\bf k}$ のバンド内の項）が落ちる分だけ $\chi^R_{JJ}(0)$ が $ne^2\Omega/m$ より小さくなりうる。その差が Drude の重みである。
+周期境界条件でも、不純物のある系（この文書の設定）で、まず系を無限大に大きくして単位体積あたりの量に直してから $\delta\to+0$ を取れば、Drude の重みは 0 になり、本の評価 $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ が成り立つ。
 
 ### 直流の極限: Kubo–Greenwood の式 {#kubo-greenwood}
 
