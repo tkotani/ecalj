@@ -1,11 +1,11 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 959ff66f0 (source blob 84d9b43df).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a04efd4a6 (source blob a8ab68b60).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
 The key point is that the average over the impurity configurations is taken of a **product of Green functions** (averaging each one first and then multiplying is not enough).
-The sign convention of the Green function is the same as in [Basic I](./basic); the retarded Green function is $G^R(E)=1/(E-H+i\delta)$.
+The sign convention of the Green function is the same as in [Basic I](./basic); the retarded Green function is $G^R(E)=1/(E-H+i\delta)$ and the advanced one $G^A(E)=1/(E-H-i\delta)$.
 For retarded response functions see also the [Appendix](./appendix#causality).
 :::
 
@@ -168,6 +168,7 @@ $$
 $$
 
 This is fixed only by one-body quantities at the Fermi level $E_F$.
+Note the order of the limits: the system is first made infinitely large, then $\delta\to+0$, and then $\omega\to0$ (in a finite system the levels are discrete and the product of delta functions has no meaning).
 Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ gives the Kubo–Greenwood formula
 
 $$
@@ -242,7 +243,7 @@ $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) 
 > This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C12).
 
 The sum (integral) over the product of delta functions in Eq. (C12) may be hard to read, so it is explained here.
-Keeping $i\delta$ finite, the delta functions in Eq. (C12) become Lorentzians of width $\delta$, $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$.
+Keeping $i\delta$ finite (here $\delta$ is a width put in by hand, separate from the infinitesimal of the Kubo formula), the delta functions in Eq. (C12) become Lorentzians of width $\delta$, $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$.
 $\sum_n\delta_\delta(E-E_n)$ is the density of states $D(E)$ (the number of states per energy in the whole system).
 
 Let us consider this a little. If the matrix elements $|\langle n|\hat v_x|m\rangle|^2$ are uniform near $E_F$ (average $\overline{|v_x|^2}$),
@@ -265,8 +266,8 @@ $$
 \tag{C20}
 $$
 
-which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
-In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C20) may be regarded as correct.
+which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on. This is only a provisional choice to get an estimate; the $\tau$ due to impurities is derived from the [average over the impurity configurations](#impurity-average).
+Whether a real system is closer to Eq. (C19) or (C20) depends on how the matrix elements connect the states near $E_F$, and cannot be decided at this stage. In a system with impurities it is decided by the average over the configurations ([Section 3 onward](#impurity-average)), and the result has the form of Eq. (C20) with $\delta=\hbar/2\tau$.
 
 Eq. (C20)'s "the electrons on the Fermi surface contribute to the conduction" is connected to Drude's "all electrons are accelerated for the time $\tau$" as follows.
 The following factor on the right-hand side of Eq. (C20), for one band and per spin, becomes by integration by parts in $k_x$, using $v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$ ($\theta$ is the step function of the occupation, $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$; the boundary term vanishes by the periodicity of the Brillouin zone),
@@ -320,7 +321,7 @@ $$
 
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
 
-If Eq. (C24) is taken as an equality (the product of the single averages), the result has the form of Eq. (C20). As it stands, this would lead to the conclusion that in a one-body problem the impurities give no resistance (it diverges for $\delta\to 0$).
+If Eq. (C24) is taken as an equality (the product of the single averages), only the width $\hbar/2\tau$ of the self-energy in $\langle G\rangle$ ([lifetime](#averaged-g)) remains, giving the Drude formula with the lifetime $\tau$ ([Drude formula](#drude)). What is lost is the difference between the lifetime $\tau$ and the transport relaxation time (forward scattering does not reduce the current much; [vertex correction](#vertex-correction)). Without any averaging, keeping $\delta$ infinitesimal, Eq. (C20) diverges for $\delta\to0$.
 
 ## Average over the impurity configurations {#impurity-average}
 
