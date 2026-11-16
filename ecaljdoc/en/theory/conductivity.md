@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d5d54e97f (source blob 9c9cfbfae).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 416016f97 (source blob c04d8c9cc).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -401,14 +401,15 @@ $$
 \tag{C30}
 $$
 
-and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
+and its imaginary part gives a time $\tau$ (the real part is an energy shift, absorbed in $E_F$):
 
 $$
 {\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},
 \tag{C31}
 $$
 
-and at $E=E_F$
+Eq. (C28) is the expression of the Green function that includes the impurity scattering fully as a one-body problem (within the Born approximation). Its poles are at a distance $\hbar/2\tau$ from the real axis, and $G$ decays in time as $e^{-t/2\tau}$ (the probability $|G|^2$ as $e^{-t/\tau}$). So this $\tau$ can be regarded as the quasiparticle lifetime.
+At $E=E_F$
 
 $$
 \frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E_F-\varepsilon_{\bf k'})
