@@ -321,12 +321,12 @@ $$
 $$
 
 （${\bf q}=0$ の成分は一様なエネルギーのずれで、$E_F$ に繰り込む。同じ不純物に三回以上かかる項は、不純物が弱いとして落とす。）
-これを使って式 (C23) の<span style="color:#d00">二つの項</span>を展開する。<span style="color:#d00">$G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$（$G^+=G^R$、$G^-=G^A$）と書き、${\rm Tr}[\hat v_xG^+\hat v_xG^{\pm}]$ を考える（複号の $-$ が第 1 項、$+$ が第 2 項）。</span>平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
+これを使って式 (C23) の<span style="color:#d00">二つの項</span>を展開する。<span style="color:#d00">$G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$（$G^+=G^R$、$G^-=G^A$）と書き、${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ を考える（二つの複号は独立に取る。$(+,-)$ が第 1 項、$(+,+)$ が第 2 項）。</span>平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
 
 $$
 \begin{aligned}
-{\rm Tr}\big[\hat v_x G^+\hat v_x G^{\pm}\big]
-&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^{\pm}_{ {\bf k}'{\bf k}}
+{\rm Tr}\big[\hat v_x G^{\pm}\hat v_x G^{\pm'}\big]
+&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^{\pm}_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^{\pm'}_{ {\bf k}'{\bf k}}
 \end{aligned}
 \tag{C25}
 $$
@@ -346,19 +346,19 @@ $$
 
 $$
 \begin{aligned}
-&\Big\langle{\rm Tr}\big[\hat v_x G^+\hat v_x G^{\pm}\big]\Big\rangle_{\rm imp}\\
-&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,\Sigma^+_2({\bf k})\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\,\Sigma^{\pm}_2({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^+_0({\bf k}')\,G^{\pm}_0({\bf k}')\,v_x({\bf k}')\\
+&\Big\langle{\rm Tr}\big[\hat v_x G^{\pm}\hat v_x G^{\pm'}\big]\Big\rangle_{\rm imp}\\
+&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,\Sigma^{\pm}_2({\bf k})\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\,\Sigma^{\pm'}_2({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^{\pm}_0({\bf k}')\,G^{\pm'}_0({\bf k}')\,v_x({\bf k}')\\
 &\qquad+O(V^4)
 \end{aligned}
 \tag{C27}
 $$
 
 となる。ここで $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$ である。
-右辺の第 1 項は不純物の無い項、第 2 項と第 3 項は一本の $G$ の中の二つの $V$ を結んだ項（自己エネルギー $\Sigma_2$ が一つ挟まる）、第 4 項は $G^+$ の $V$ と $G^{\pm}$ の $V$ を結んだ項である。
+右辺の第 1 項は不純物の無い項、第 2 項と第 3 項は一本の $G$ の中の二つの $V$ を結んだ項（自己エネルギー $\Sigma_2$ が一つ挟まる）、第 4 項は $G^{\pm}$ の $V$ と $G^{\pm'}$ の $V$ を結んだ項である。
 一本の $G$ の中の平均 $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$ は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残る。平均した後の $G$ が ${\bf k}$ について対角（並進対称）になるのはこのためである。
 
 $V$ について高次の項も同じで、$V$ の積の平均は対の平均の積の和になる。ダイヤグラムでは、組になった二つの $V$ を不純物の線で結ぶ。線には次の三通りがある。
