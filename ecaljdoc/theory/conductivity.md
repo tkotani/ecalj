@@ -270,10 +270,6 @@ $$
 で、$\delta\to 0$ で発散する（散乱が無ければ電流は減衰しない）。大雑把には、$\delta$ はフォノンなどによる準粒子の寿命 $\tau$ から来る幅 $\hbar/2\tau$ と考えてもよい。
 実際には、行列要素は対角成分だけではないにせよ、$n$ とつながる $m$ の数は（完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限なので）有限であり、式 (C20) が正しいと考えてよい。
 
-> <span style="color:#d00">注: 式 (C19) も物理的にありえないわけではない。不純物のある系の、配置の平均を取らない正確な固有状態では、$|\langle n|\hat v_x|m\rangle|^2$ は $|E_n-E_m|\lesssim\hbar/\tau$ の範囲でほぼ一様で、それより離れると小さくなる（速度の相関が時間 $\tau$ で消えるため）。</span>
-> <span style="color:#d00">総和則 $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ から、その一様な値は $\overline{|v_x|^2}\sim\overline{v_x^2}\,\tau/\big(\hbar D(E_F)\big)$ で、式 (C19) に入れると $\sigma_{xx}\sim e^2\tau\,\overline{v_x^2}\,D(E_F)/\Omega$、つまり Drude の式と同じ形になる（$\delta\ll\hbar/\tau$ なら $\delta$ によらない）。</span>
-> <span style="color:#d00">式 (C20) は、この行列要素の広がり $\hbar/\tau$ の役を、手で入れた $\delta$ が肩代わりした形である。</span>
-
 式 (C20) の「フェルミ面の電子が電気伝導に効く」は、Drude の「すべての電子が $\tau$ の間加速される」と、次のようにつながる。
 式 (C20) の右辺の次の因子は、一つのバンド、スピンあたりで、$v_x\,\delta(E_F-\varepsilon_{\bf k})=-\hbar^{-1}\partial_{k_x}\theta(E_F-\varepsilon_{\bf k})$（$\theta$ は占有の階段関数、$v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$）を使って $k_x$ について部分積分すると（境界の項はブリルアン<del>帯</del><span style="color:#d00">域</span>の周期性で消える）
 
