@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8639d98c6 (source blob 6d8b718e6).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3bbd4fc0 (source blob 3aeb6cfd1).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -148,8 +148,8 @@ In a finite system where the position operator $\hat x$ can be used (not under p
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(0)&=\frac{e^2}{\hbar^2}\sum_{nm}(f_n-f_m)(E_m-E_n)\,|\langle n|\hat x|m\rangle|^2
-=\frac{e^2}{\hbar^2}\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle\\
+\chi^R_{JJ}(0)&=\frac{e^2}{\hbar^2}\sum_{nm}(f_n-f_m)(E_m-E_n)\,|\langle n|\hat x|m\rangle|^2\\
+&=\frac{e^2}{\hbar^2}\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle\\
 &=\frac{e^2}{\hbar^2}\sum_n f_n\,\frac{\hbar^2}{m}=\frac{Ne^2}{m}=\frac{ne^2\Omega}{m}
 \end{aligned}
 \tag{C12}
