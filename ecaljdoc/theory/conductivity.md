@@ -412,6 +412,8 @@ $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
+<span style="color:#d00">これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。次節で具体的に評価する。</span>
+
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
 式 (C29) では、$\bar G$ に自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
