@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 28aaba75d (source blob 729003a8b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 36e310dd6 (source blob 11e5a3511).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -391,7 +391,7 @@ Below, $\Sigma$ is obtained (next section) and the two terms of Eq. (C29) are ev
 
 ## Summing the second and third terms: the lifetime and the Drude formula {#self-energy-sum}
 
-### Green function with the self-energy: the lifetime {#averaged-g}
+### The first term on the right-hand side of Eq. (C29): the lifetime and the Drude formula {#averaged-g}
 
 We now obtain the $\Sigma^{\pm}$ of Eq. (C28) explicitly. Turning the sum in $\Sigma_2$ into an integral, the self-energy is
 
@@ -413,9 +413,9 @@ $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
-Putting this into Eq. (C29), $\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$ and $\bar G^A$ is its complex conjugate. In the first term, $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ has a sharp peak of width $\hbar/2\tau$ at $\varepsilon_{\bf k}=E_F$, and the sum over ${\bf k}$ is proportional to $\tau$. The second term $(\bar G^R)^2$ does not behave so, because its poles are on the same side of the real axis. They are evaluated explicitly in the next section.
+Putting this into Eq. (C29), $\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$ and $\bar G^A$ is its complex conjugate. In the first term, $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ has a sharp peak of width $\hbar/2\tau$ at $\varepsilon_{\bf k}=E_F$, and the sum over ${\bf k}$ is proportional to $\tau$. The second term $(\bar G^R)^2$ does not behave so, because its poles are on the same side of the real axis. They are evaluated explicitly below.
 
-### Without the vertex correction: the Drude formula {#drude}
+<a id="drude"></a>
 
 In Eq. (C29), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
@@ -437,6 +437,9 @@ $$
 $$
 
 the same Drude formula as Eq. (C22) ($ne^2\tau/m$ for free electrons).
+
+### The second term on the right-hand side of Eq. (C29) {#rr-term}
+
 We estimate the second term of Eq. (C29) precisely, compared with the first. Writing $g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$ and $\gamma=\hbar/2\tau$,
 
 $$
@@ -452,6 +455,10 @@ $$
 $$
 
 The second equality of the first relation is an integration by parts with $(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ (the boundary terms vanish). The first relation stays finite for $\gamma\to0$, and its real part is $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$, independent of $\tau$. The second relation (the first term) is proportional to $1/\gamma=2\tau/\hbar$. So the second term is smaller than the first by a factor of the order of $\gamma/E_F\sim\hbar/(E_F\tau)$, and it was dropped.
+
+### Summary {#lifetime-summary}
+
+In summary, in the approximation dropping the terms of the type of the fourth term (orange), the first term of Eq. (C29) gives the Drude formula (C33) with the lifetime $\tau$, and the second term is smaller by a factor of the order of $\hbar/(E_F\tau)$.
 A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
