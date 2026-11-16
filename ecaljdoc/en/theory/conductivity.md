@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a04efd4a6 (source blob a8ab68b60).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b7485607d (source blob 962cd5a71).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -168,7 +168,6 @@ $$
 $$
 
 This is fixed only by one-body quantities at the Fermi level $E_F$.
-Note the order of the limits: the system is first made infinitely large, then $\delta\to+0$, and then $\omega\to0$ (in a finite system the levels are discrete and the product of delta functions has no meaning).
 Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ gives the Kubo–Greenwood formula
 
 $$
