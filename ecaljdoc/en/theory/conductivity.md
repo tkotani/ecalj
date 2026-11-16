@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d3bc9901a (source blob 76481c099).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 9a8ba5b8d (source blob 2fc278473).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -272,13 +272,53 @@ $$
 $$
 
 (the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
-So expanding $G^R=G^R_0+G^R_0VG^R_0+\cdots$ and $G^A$ in the same way and averaging the product gives a sum of terms in which the $V$ are paired. In diagrams, the two $V$ of a pair are connected by an impurity line. The lines are of three kinds:
+With this we expand Eq. (C19). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
+
+$$
+\begin{aligned}
+{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]
+&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^A_{ {\bf k}'{\bf k}}
+\end{aligned}
+\tag{C22}
+$$
+
+($G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$; $E=E_F$ is not written). Expanding $G^R=(E-H_0-V+i\delta)^{-1}$ in $V$ gives
+
+$$
+\begin{aligned}
+G^R_{ {\bf k}{\bf k}'}={}&G^R_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^R_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^R_0({\bf k}')\\
+&+\sum_{ {\bf k}_1}G^R_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^R_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^R_0({\bf k}')+\cdots
+\end{aligned}
+\tag{C23}
+$$
+
+where $G^R_0({\bf k})=1/(E-\varepsilon_{\bf k}+i\delta)$, $\varepsilon_{\bf k}=\hbar^2k^2/2m$ and $V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$; $G^A$ is the same with $G^A_0({\bf k})=1/(E-\varepsilon_{\bf k}-i\delta)$.
+We put this into Eq. (C22) and average. Of the terms first order in $V$ only the ${\bf q}=0$ component remains, and it is absorbed in $E_F$. The second-order terms fall into three groups according to where the two $V$ are, and with Eq. (C21)
+
+$$
+\begin{aligned}
+&\Big\langle{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]\Big\rangle_{\rm imp}\\
+&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,\Sigma^R_2({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\,\Sigma^A_2({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^R_0({\bf k}')\,G^A_0({\bf k}')\,v_x({\bf k}')\\
+&\qquad+O(V^4)
+\end{aligned}
+\tag{C24}
+$$
+
+where $\Sigma^{R}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^R_0({\bf k}_1)$ ($\Sigma^A_2$ is the same with $G^R_0$ replaced by $G^A_0$).
+On the right-hand side, the first term is the one without impurities; the second and third terms connect the two $V$ within one $G$ (one self-energy $\Sigma_2$ is inserted); the fourth term connects a $V$ in $G^R$ with a $V$ in $G^A$.
+The average within one $G$, $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$, remains only for ${\bf k}={\bf k}'$ because of the random phases. This is why the averaged $G$ is diagonal in ${\bf k}$ (translationally invariant).
+
+The higher-order terms are the same: the average of a product of $V$ is the sum of products of the averages of pairs. In diagrams, the two $V$ of a pair are connected by an impurity line. The lines are of three kinds:
 
 - lines within one $G$: they give the self-energy (next section);
 - lines connecting $G^R$ and $G^A$: they give the vertex correction (section [Vertex correction](#vertex-correction));
 - crossing lines: they give the weak-localization correction (not treated here).
 
-Taking Eq. (C20) as an equality means dropping the lines connecting $G^R$ and $G^A$.
+Taking Eq. (C20) as an equality means dropping the lines connecting $G^R$ and $G^A$ (the fourth term of Eq. (C24) and its higher orders).
 
 ## Green function with the self-energy: the lifetime {#averaged-g}
 
@@ -286,7 +326,7 @@ As a result of the random-phase average, all the lines within one $G$ are collec
 
 $$
 \bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C22}
+\tag{C25}
 $$
 
 Taking the lines within one $G$ that do not cross each other (Born approximation), Eq. (C21) gives the self-energy
@@ -294,17 +334,17 @@ Taking the lines within one $G$ that do not cross each other (Born approximation
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C23}
+\tag{C26}
 $$
 
-and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
+(the $\Sigma^R_2$ of Eq. (C24) with the sum turned into an integral), and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
 
 $$
 \begin{aligned}
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C24}
+\tag{C27}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
@@ -320,14 +360,14 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C25}
+\tag{C28}
 $$
 
 which corresponds to the Lorentzian of Eq. (C16) with the width $\delta$ set to $\hbar/2\tau$. So Eq. (C19) becomes
 
 $$
 \sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C26}
+\tag{C29}
 $$
 
 the same Drude formula as Eq. (C18) ($ne^2\tau/m$ for free electrons).
@@ -335,7 +375,7 @@ A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the 
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C20) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C23)).
+The product average (C20) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C26)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -343,23 +383,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C27}
+\tag{C30}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C25), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C28), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C28}
+\tag{C31}
 $$
 
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C26) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C29) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C29}
+\tag{C32}
 $$
 
 ($ne^2\tau_{\rm tr}/m$ for free electrons).
