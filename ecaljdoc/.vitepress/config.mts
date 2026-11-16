@@ -55,7 +55,7 @@ const sidebarRoot = [
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
       { text: '電気伝導計算', link: '/theory/conductivity' },
-      { text: '光学的性質', link: '/theory/optical_properties' },
+      { text: '光学的性質（書きかけ）', link: '/theory/optical_properties' },
       { text: '付録', link: '/theory/appendix' },
     ]
   },
@@ -120,7 +120,7 @@ const enText: Record<string, string> = {
   '誘電関数: job_eps': 'Dielectric function: job_eps',
   '実装メモ（GW の実装の詳細）': 'Implementation notes (details of the GW implementation)',
   'GW 近似': 'GW approximation',
-  '光学的性質': 'Optical properties',
+  '光学的性質（書きかけ）': 'Optical properties (unfinished)',
   '電気伝導計算': 'Electrical conduction',
   '付録': 'Appendix',
 }
