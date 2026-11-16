@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 814fad438 (source blob 9418b742e).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e7e40a83e (source blob 5c4f8a725).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -143,7 +143,7 @@ $$
 $$
 
 (with $\hbar\delta$ written again as $\delta$). The $i\delta$ is the trace of the slow switching on, and the third line is Eq. (C4) at $\omega=0$.
-That is, the book's form assumes that under a static $A_x$ the current from the change of $\rho$ exactly cancels the diamagnetic current, so that the total current is 0.
+That is, the book's form amounts to assuming that under a static $A_x$ the current from the change of $\rho$ exactly cancels the diamagnetic current, so that the total current is 0.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
