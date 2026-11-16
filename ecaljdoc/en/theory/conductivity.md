@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1edbe7b96 (source blob 11af98b2a).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b1dec25ab (source blob 1c282bbdf).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -444,21 +444,19 @@ the same Drude formula as Eq. (C22) ($ne^2\tau/m$ for free electrons).
 
 ### The second term on the right-hand side of Eq. (C29) {#rr-term}
 
-We estimate the second term of Eq. (C29) precisely, compared with the first. Writing $g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$ and $\gamma=\hbar/2\tau$,
+We estimate the second term of Eq. (C29) precisely. Writing $g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$ and $\gamma=\hbar/2\tau$,
 
 $$
 \begin{aligned}
 \sum_{\bf k}v_x({\bf k})^2\,\bar G^R({\bf k},E_F)^2
 &=\int d\varepsilon\,\frac{g(\varepsilon)}{(E_F-\varepsilon+i\gamma)^2}\\
-&=-\int d\varepsilon\,\frac{g'(\varepsilon)}{E_F-\varepsilon+i\gamma},\\
-\sum_{\bf k}v_x({\bf k})^2\,\bar G^R\,\bar G^A
-&=\int d\varepsilon\,\frac{g(\varepsilon)}{(E_F-\varepsilon)^2+\gamma^2}\\
-&\simeq\frac{\pi}{\gamma}\,g(E_F)
+&=-\int d\varepsilon\,\frac{g'(\varepsilon)}{E_F-\varepsilon+i\gamma}
 \end{aligned}
 \tag{C35}
 $$
 
-The second equality of the first relation is an integration by parts with $(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ (the boundary terms vanish). The first relation stays finite for $\gamma\to0$, and its real part is $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$, independent of $\tau$. The second relation (the first term) is proportional to $1/\gamma=2\tau/\hbar$. So the second term is smaller than the first by a factor of the order of $\gamma/E_F\sim\hbar/(E_F\tau)$, and it was dropped.
+The second equality is an integration by parts with $(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ (the boundary terms vanish). The right-hand side stays finite for $\gamma\to0$, and its real part is $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$, independent of $\tau$. Since $g$ varies on an energy scale of about $E_F$, its size is of the order of $g(E_F)$.
+The first term, on the other hand, is $\sum_{\bf k}v_x({\bf k})^2\,\bar G^R\bar G^A\simeq(2\pi\tau/\hbar)\,g(E_F)$ from Eq. (C33), proportional to $\tau$. Their ratio is of the order of $\hbar/(E_F\tau)$, small for weak scattering ($\hbar/\tau\ll E_F$), so the second term was dropped.
 
 ### Summary {#lifetime-summary}
 
