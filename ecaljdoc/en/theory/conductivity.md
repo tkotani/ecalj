@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2335f5751 (source blob 95f6f03eb).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit fc5f0e0bd (source blob 56a25e5f7).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -187,6 +187,7 @@ $$
 $$
 
 (at zero temperature; $J=-e\hat v_x$ is a one-body operator). Taking the residues in the $E$ integral, only the pairs of occupied $n$ and unoccupied $m$ remain. The poles are at the same places as in Eq. (C4); only the sign of $i\delta$ on the $\omega\lt 0$ side differs.
+
 However, replacing $G^T$ in Eq. (C14) simply by $G^R$ does not make it retarded. $G^T$ has the form of $G^A$ for the occupied states and of $G^R$ for the unoccupied states, so the rewriting into the retarded form is done on the response function $\chi$ (moving all the poles in $\omega$ to the lower half-plane, $\omega\to\omega+i\delta$).
 In practice it is quicker to derive it directly from Eq. (C4). Writing $J_{nm}=\langle n|J|m\rangle$ and $f_n=\int dE\,f(E)\,\delta(E-E_n)$, and setting $E=E_n$ in the sum with $f_n$ and $E=E_m$ in the sum with $f_m$,
 
