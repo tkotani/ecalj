@@ -390,7 +390,9 @@ $$
 
 <span style="color:#d00">となる。以下、$\Sigma$ を求め（次節）、式 (C29) の二つの項を評価する（[Drude の式](#drude) の節）。第 4 項の型の項は [バーテックス補正](#vertex-correction) の節で取り入れる。対が互いに交差する組み方は弱局在の補正を与えるが、ここでは扱わない。</span>
 
-## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
+## <span style="color:#d00">第 2 項と第 3 項の足し上げ: 寿命と Drude の式</span> {#self-energy-sum}
+
+### 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
 
 <span style="color:#d00">式 (C28) の $\Sigma^{\pm}$ を具体的に求める。</span>$\Sigma_2$ の和を積分にすると、自己エネルギーは
 
@@ -414,7 +416,7 @@ $1/\tau$ はフェルミの黄金則による散乱の速さそのものであ�
 
 <span style="color:#d00">これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。次節で具体的に評価する。</span>
 
-## バーテックス補正を入れない場合: Drude の式 {#drude}
+### バーテックス補正を入れない場合: Drude の式 {#drude}
 
 式 (C29) では、$\bar G$ に自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
