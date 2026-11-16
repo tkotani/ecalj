@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 98c6e2eb9 (source blob 4b4acfd49).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3c93f8e2 (source blob f2d7f3b80).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -429,15 +429,50 @@ In Eq. (C17), the integral over the occupied region (Drude's $n/m$) and $\overli
 For the anomalous Hall conductivity too, the integral of the Berry curvature over the occupied states can be rewritten as the Berry phase on the Fermi surface (F. D. M. Haldane, Phys. Rev. Lett. **93**, 206602 (2004)).
 So the distinction "only the electrons on the Fermi surface contribute, or all electrons" has no physical meaning.
 
-The exception is the integer part. The Berry phase is fixed only modulo $2\pi$, so moving the integral to the Fermi surface leaves the Chern number $C$ of the completely filled bands.
-As an example, put a filled Chern-insulator layer ($C=1$) under an ordinary metal layer, without coupling. The Fermi surface is only that of the metal layer, the same as before, but
+The exception is the integer part. We see this with formulas in the following setting.
+In a two-dimensional crystal, band 1 is completely filled (no Fermi surface), and band 2 is occupied only in a region $S$ of the Brillouin zone (an electron pocket). The Fermi surface is the boundary $\partial S$ of $S$.
+With the Berry connection and Berry curvature of the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions,
 
 $$
-\sigma_{xy}^{\text{(stacked)}}=\sigma_{xy}^{\text{(metal layer only)}}+\frac{e^2}{h}
+{\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
+\Omega_n({\bf k})=\partial_{k_x}a_{n,y}-\partial_{k_y}a_{n,x}
 \tag{C33}
 $$
 
-This $e^2/h$ is not fixed by the Fermi surface; it can only be written as the Fermi-sea integral $\frac{1}{2\pi}\int_{\rm BZ}\Omega\,d^2k=C$. The extreme case is a quantum Hall insulator, which has no Fermi surface but $\sigma_{xy}=Ce^2/h$.
+the intrinsic anomalous Hall conductivity is (the sign depends on the orientation convention of $\Omega$)
+
+$$
+\sigma_{xy}=\frac{e^2}{h}\,\frac{1}{2\pi}\Big[\int_{\rm BZ}\Omega_1\,d^2k+\int_S\Omega_2\,d^2k\Big]
+\tag{C34}
+$$
+
+The first term is the Chern number of band 1, $C_1=\frac{1}{2\pi}\int_{\rm BZ}\Omega_1\,d^2k$, an integer. The Brillouin zone is a torus without boundary, so this cannot be rewritten as an integral over a boundary ($C_1\neq 0$ means that no gauge is smooth over the whole Brillouin zone).
+The second term, with a gauge smooth on $S$, becomes by Stokes' theorem the Berry phase $\gamma_2$ on the Fermi surface:
+
+$$
+\int_S\Omega_2\,d^2k=\oint_{\partial S}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2.
+\tag{C35}
+$$
+
+From the states on the Fermi surface alone, however, $\gamma_2$ is fixed only modulo $2\pi$. A gauge transformation $|u_{2{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{2{\bf k}}\rangle$ gives ${\bf a}_2\to{\bf a}_2-\nabla_{\bf k}\phi$, so that
+
+$$
+\gamma_2\to\gamma_2-2\pi w
+\tag{C36}
+$$
+
+($w$ is the integer number of times $\phi$ winds by $2\pi$ around $\partial S$). Which $w$ is right (which gauge connects smoothly inside $S$) cannot be decided without looking at the states inside the Fermi surface.
+So the Fermi surface fixes $\sigma_{xy}=(e^2/h)\,[\gamma_2/2\pi+\text{integer}]$ only modulo $e^2/h$; the integer part ($C_1$ and the $2\pi$ ambiguity of $\gamma_2$) is information of the Fermi sea.
+
+As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal layer, without coupling, put either an ordinary insulator layer (A, $C_1=0$) or a Chern-insulator layer (B, $C_1=1$). Eq. (C34) gives
+
+$$
+\sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{h}
+\tag{C37}
+$$
+
+and this difference cannot be told from the Fermi surface. The extreme case is a quantum Hall insulator, in which $S$ is empty (no Fermi surface) but $\sigma_{xy}=C_1e^2/h$.
+
 A weak coupling only changes the Fermi surface and the Berry phase continuously; the integer does not change unless the gap closes. In three dimensions, this integer part becomes a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
 
 In a finite sample with edges, however, as many edge states as the Chern number cross the gap and pass through $E_F$ (bulk-edge correspondence). If the integer part is regarded as carried by the edge states at $E_F$, the view "determined by the states at $E_F$" holds once the boundary is included.
