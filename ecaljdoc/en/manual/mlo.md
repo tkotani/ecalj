@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 4f74d9132 (source blob e6696739a8a1).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit d98852485 (source blob 901da2de2260).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -525,8 +525,6 @@ FeCo (18 orbitals, window 8.3 meV) — a magnetic metal; both spins fit well.
 
 ---
 
----
-
 ### MLO fitting overview — all samples
 
 All 25 systems of `Samples/MLOsamples` (gray: first-principles PMT bands, red ×: MLO). Same inputs and same references as
@@ -642,8 +640,6 @@ The floor $\varepsilon_{\rm CBM}+\Delta$ is placed at $E_F+23.9$ eV, so for the 
 
 GdCo5 takes only Gd 4f with the 5 Co sites empty, and SmP takes only Sm 4f with P empty.
 The results measured by the overlap of levels are in the table above.
-
----
 
 ---
 
@@ -876,14 +872,6 @@ does not fix it.
 **Give s,p,d on the DFT side and make the MLO selection with `mlo_lm`**; this is the consistent way.
 
 **(b) A vacuum slab needs ESM. Do not forget to write `[esm]`.** Without `[esm]`, `lmf` solves with periodic boundaries and only prints a one-line warning without stopping. The zero of energy shifts ($E_F$ by 4.4 eV for FeMgO). The settings and the conversion from `esm_input.dat` are in [ESM](./esm).
-
-> This took a long detour. Seeing a different $E_F$ come out of the same `rst` on another machine,
-> we suspected the compiler and MPI, and eliminated in turn the binary compatibility of rst, `atmpnu`, negative charge density and nondeterminism,
-> but the truth was simply that `esm_input.dat` had not been copied when the new sample was assembled.
-> Once `Vesav` agreed to 13 digits, the density side was known to be innocent, so
-> **the SCF logs should have been diffed first.**
-
----
 
 ---
 
@@ -1277,89 +1265,6 @@ All of the following were remeasured with `mlo_method = 4` (the final form of §
 ### Solved
 
 - **The gap of Al₂O₃:Cr** — with the implementation of the development record (D (c) of §2 in MD/mlo_backup.md in the repository, not on the site), **−128 → +7 meV** ($m^*$ ratio 0.58 → 1.08). (Values at that time. With the defaults in the table of §2, +1 meV and 1.04)
-- ~~**Adding FeMgO to the samples is on hold** — because a machine dependence remains.~~
-  **Solved (2026-09-15). It was not a machine dependence; I had simply forgotten to copy `esm_input.dat`
-  to the new sample `FeMgO_ES`.**
-
-  FeMgO is a slab with a 30.5 a.u. vacuum layer, so the existing `Samples/MLOsamples/FeMgO/` has contained
-  **`esm_input.dat`** (ESM = Effective Screening Medium) since February.
-  It was dropped when `FeMgO_ES` was assembled from there.
-  Without the file, `lmf` solves the electrostatic potential with ordinary periodic boundaries,
-  prints only one line in the log, and **does not stop**:
-
-  ```
-  local  : esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
-  kt1     : effective screening medium method jesm=  1
-            system : vaccum(-z)/slab/vaccum(+z)
-  ```
-
-  In a slab containing vacuum, the treatment of the $G=0$ component of the Coulomb interaction determines the zero of energy,
-  so the eigenvalues shift as a whole depending on whether ESM is used. Measured:
-
-  | Quantity | local (no ESM) | local (with ESM) | kt1 |
-  |---|---|---|---|
-  | $E_F$ (Ry) | $-0.05833040$ | $-0.3828614963792108$ | $-0.3828614963782127$ |
-  | mmom | 8.419083 | 8.4130803741493 | 8.4130803741352 |
-  | sev (eV) | $-1241.428$ | $-1544.360816089$ | $-1544.360816089$ |
-  | `val*vef` (Ry) | $-253.66$ | $-257.64$ | $-257.64$ |
-
-  Just placing `esm_input.dat` makes **$E_F$ agree to 12 digits**.
-  The bands themselves also agree with kt1 (`bnd001`, 4563 points):
-
-  | | Max difference | rms |
-  |---|---|---|
-  | spin1 | $4.8\times10^{-8}$ eV | $2.5\times10^{-9}$ eV |
-  | spin2 | $5.1\times10^{-8}$ eV | $2.6\times10^{-9}$ eV |
-
-  Against the `testecalj` tolerance of 0.001 eV there is a margin of 5 digits. **There is no machine dependence.**
-  The way it fails is bad: in ecalj's `SRC/subroutines/esmsmves.f90` ([GitHub](https://github.com/tkotani/ecalj/blob/main/SRC/subroutines/esmsmves.f90)),
-  `open(...,status='old',err=201)`, when the file is absent, writes one line with `jesm=0` unchanged and `return`s,
-  **without abnormal termination**. The vacuum slab calculation silently becomes something else.
-
-  The shift is $0.3245311$ Ry $=4.4155$ eV, which is exactly the quantity previously measured as
-  "$H$ is shifted in proportion to $c\,O$ with $c=0.342$ Ry".
-
-  **Subsequent measures (2026-09-16)**
-
-  1. `esm_input.dat` was abolished and moved to the **`[esm]` section** of `ctrlg.<sname>.toml`.
-     At first Fortran migrated it on the spot, but on the next day, 09-17, this was unified to "Fortran reads
-     nothing but ctrlg": if the file remains, it aborts and points to `ctrlg_absorb.py`.
-     The conversion is done by `ctrlg_absorb.py` / `Legacy2toml.py`; if `[esm]` already exists it is
-     kept, otherwise the file is converted and written to ctrlg with explanations. In either case the original is
-     moved to `esm_input.dat.bk`, with the destination (or "the TOML side was used") written at the top.
-     A warning is also printed if $c/a>3$ and there is no `[esm]`.
-  2. **`FeMgOSoc` had the same disease.** It is the same slab as `FeMgO`, with `ctrlg` and `rst.femgo`
-     identical byte for byte, but `esm_input.dat` had not been placed,
-     and $E_F$ was $+0.07203343$ Ry (without ESM) versus $-0.25231238$ Ry (with ESM),
-     a difference of $4.4129$ eV. The reference had been made by expanding an `rst` converged with ESM without ESM.
-  3. **The samples were unified to the 55-orbital model with empty spheres.** (The state on 2026-09-16. Later replaced by the 76-orbital model with s,p on the ES, §5. The 113.3 meV of the old model in the table below is a different measurement from the 126.9 meV in the table of §5)
-     The old 78-orbital model without empty spheres (`mlo_method=0`, `mlo_emax=5`) was deleted,
-     and `FeMgO` and `FeMgOSoc` now share the whole set of inputs. Measured locally:
-
-     | | Number of orbitals | dE_win | dE_occ | dv/v |
-     |---|---|---|---|---|
-     | Old (no empty spheres) | 78 | 113.3 meV | 7.7 meV | 0.270 |
-     | **New (with empty spheres)** | **55** | **3.1 meV** | **0.6 meV** | **0.008** |
-
-     The old model was the worst of all samples. That its test passed only means it
-     reproduced its own reference, which is a separate matter from the accuracy of the model.
-     The three stages of `job_mlo_soc` also go through without problems with empty spheres,
-     and the SOC $E_F$ is $-0.3826348900$ Ry (a shift of 3.1 meV from non-SOC).
-  4. In the process, **a silent fallback in `readbandedge`** was found.
-     Without `efermi.lmf`, `ecbot` falls back to $E_F$, so the floor of method 4 becomes
-     $E_F+\Delta$ instead of $\varepsilon_\mathrm{CBM}+\Delta$.
-     In FeMgO the difference $\varepsilon_\mathrm{CBM}-E_F=0.0148$ eV went through θ and moved
-     the MLO bands by $2.2$ meV, exceeding the tolerance $7.4\times10^{-5}$ Ry.
-     A warning is now printed, and `efermi.lmf` is included in the sample.
-     For an insulator it misses by the full width of the gap, so this was a hole with real consequences.
-
-  > **Too much time was spent isolating the cause.** Binary compatibility of rst, `atmpnu`/`__atm`,
-  > the warning of negative density, nondeterminism — all were eliminated, and all were innocent.
-  > Once `Vesav` agreed to 13 digits, the density side was known to be innocent, so
-  > **`llmf_ef` (the output of the first SCF/band stage) should have been diffed first.**
-  > It says `ESM is not turned on` in one line.
-  > The view that "the empty spheres are the trigger" was also wrong; the only trigger was the presence or absence of `esm_input.dat`.
-
 - **The residual of Cu (spd)** — there is nothing real behind it; **two artifacts on the evaluation side overlapped**.
   1. Only **21 of the 92 k points** fall in the window $E_F\pm1.5$ eV. All d bands of Cu lie
      below $-1.5$ eV, and only the steep sp band is in the window.
@@ -1389,8 +1294,6 @@ The zero of the band file is taken at the VBM, so $E_F$ comes near the top of th
 only the valence side is seen. For C.sp, widening $w$ 2.7 → 10.9 eV,
 $E_F\pm1.5$ responds sluggishly, 0.0064 → 0.0170, while the gap error runs away, $-18$ → $+822$ meV.
 The current way of measuring (§7) does not use this measure.
-
----
 
 ---
 
