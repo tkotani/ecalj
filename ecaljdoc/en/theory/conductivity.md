@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit af8ea0ab6 (source blob eac58aec5).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f0b1f9538 (source blob d5ede9d08).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -419,24 +419,24 @@ This result is the same as that of the Boltzmann equation.
 
 Adding diagrams with crossed impurity lines, instead of the ladder, gives the weak-localization correction (not treated here).
 
-## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
+## Integrals over the Brillouin zone and its topology $T^3$ {#bz-topology}
 
-> **Preliminary: the geometry (topology) of the Brillouin zone**
->
-> Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
->
-> ${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
-> $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$, a kind of closed three-dimensional space without boundary.
-> On $T^2$ there are two kinds of loops ($T^1$) that cannot be shrunk to a point (loops that can be deformed continuously into each other are regarded as the same): calling the large circle of the doughnut the "ring" and the small circle of its cross-section the "tube", one goes along the ring and one goes around the tube. Other loops are combinations of these two, for example a path that goes twice around the tube and then once along the ring.
-> On $T^3$ there are three such kinds of loops ($T^1$), winding in the $k_x$, $k_y$, $k_z$ directions, and in addition three kinds of closed surfaces ($T^2$) that cannot be shrunk to a point. These are closed surfaces without boundary (two-dimensional tori), specified by $k_x=$ const and so on.
-> For example, the cross-section $T^2(k_z)$ at $k_z=$ const wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
-> A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
+Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
+
+${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
+$T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$, a kind of closed three-dimensional space without boundary.
+On $T^2$ there are two kinds of loops ($T^1$) that cannot be shrunk to a point (loops that can be deformed continuously into each other are regarded as the same): calling the large circle of the doughnut the "ring" and the small circle of its cross-section the "tube", one goes along the ring and one goes around the tube. Other loops are combinations of these two, for example a path that goes twice around the tube and then once along the ring.
+On $T^3$ there are three such kinds of loops ($T^1$), winding in the $k_x$, $k_y$, $k_z$ directions, and in addition three kinds of closed surfaces ($T^2$) that cannot be shrunk to a point. These are closed surfaces without boundary (two-dimensional tori), specified by $k_x=$ const and so on.
+For example, the cross-section $T^2(k_z)$ at $k_z=$ const wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
+A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
 
 Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response). Linear response computes integrals over $T^3$.
 
 Thinking of it in simplified form, it is the case in which a phase factor $e^{i\theta(x,y,z)}$ is specified at each point $(x,y,z)$ of $T^3$. It may also be given in the form amplitude × phase, but the amplitude is not essential and can be considered later.
 
 The phase is assumed to vary continuously and smoothly. However, singular lines (vortex lines; the limit of the phase depends on the direction of approach, so the phase is undefined there, and it goes around by an integer multiple of $2\pi$ on a loop around them; for example $\theta=\arg(x+iy)$ on the $z$ axis) and singular points where bands are degenerate are also considered in some cases. In three dimensions, a singularity of the phase is generically a line.
+
+## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
 
 The static conductivity $\sigma_{ij}$ of the Kubo formula is sometimes split into a **Fermi-surface term**, with the weight $-\partial f/\partial E$, and a **Fermi-sea term**, integrated over all occupied states with the weight $f(E)$ (Středa's split; often used in the literature on the anomalous Hall effect).
 The Fermi-sea term is antisymmetric in $i\leftrightarrow j$, so it does not contribute to $\sigma_{xx}$. Eq. (C19) is the $G^RG^A$ part of the Fermi-surface term.
@@ -527,7 +527,7 @@ The winding number does not change when the assignment or the loop is varied con
 Note in particular that if the loop can be shrunk to a point (without passing a singularity), the winding number can only be zero: on a loop shrunk to a point $\theta$ is constant and the winding number is zero, and the winding number does not change while shrinking.
 
 Here it matters whether the loop can be shrunk. If $X$ is ordinary three-dimensional space, every loop can be shrunk to a point. So a loop with a nonzero winding number must pass a singularity while being shrunk; that is, it winds around a singularity (a vortex line; in three dimensions it is a line).
-If $X$ is $T^3$ (a periodic box; the [preliminary](#fermi-sea-surface)), however, the loops ($T^1$) winding in the $x$, $y$, $z$ directions cannot be shrunk to a point. So $X$ can have three winding numbers $(w_x,w_y,w_z)$ without any singularity anywhere. For example, in a periodic box with sides $a$, $b$, $c$,
+If $X$ is $T^3$ (a periodic box; see [the topology of the Brillouin zone](#bz-topology)), however, the loops ($T^1$) winding in the $x$, $y$, $z$ directions cannot be shrunk to a point. So $X$ can have three winding numbers $(w_x,w_y,w_z)$ without any singularity anywhere. For example, in a periodic box with sides $a$, $b$, $c$,
 
 $$
 e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac{w_y}{b},\frac{w_z}{c}\Big)
