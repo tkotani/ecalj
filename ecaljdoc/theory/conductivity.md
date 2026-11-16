@@ -298,53 +298,37 @@ $$
 > 占有された領域の積分とフェルミ面の上の積分が部分積分で結ばれるという式 (C21) の構造は、ベリー曲率を使った異常ホール伝導度の計算（占有状態でのベリー曲率の積分を、フェルミ面の上のベリー位相の積分に書き直す）と同じである。
 
 
-### $G^RG^A$ の項 {#grga}
+## 不純物の配置についての平均 {#impurity-average}
 
-式 (C13) は、不純物の配置を一つ決めたときの式である。観測される伝導度は、これを不純物の配置について平均したもの $\langle\cdots\rangle_{\rm imp}$ である。
-${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると、$G^RG^A$ の項と $G^RG^R$、$G^AG^A$ の項が出る。
-不純物が弱いとき<span style="color:#d00">（$n_i|u|^2$ が小さいとき）</span>主になるのは $G^RG^A$ の項で、
+<span style="color:#d00">式 (C13) は、不純物の配置を一つ決めたときの式である。観測される伝導度は、これを不純物の配置について平均したもの $\langle\cdots\rangle_{\rm imp}$ である。${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると（${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ は実数で、${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ は ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$ の複素共役である）</span>
 
 $$
-\sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
-\Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
+\begin{aligned}
+\sigma_{xx}={}&\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}\\
+&-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^R(E_F)\big]\Big\rangle_{\rm imp}\Big\}
+\end{aligned}
 \tag{C23}
 $$
 
-である<del>（$G^RG^R$ の項は、$1/\tau$ について高次の補正を与えるだけである）</del><span style="color:#d00">（配置について平均すると、$G^RG^A$ の項は $n_i|u|^2$ の逆数の程度に大きくなるが、$G^RG^R$、$G^AG^A$ の項はそうならず、それより $n_i|u|^2$ の一次の程度だけ小さい）</span>。
-
-**ミソ**: 平均を取るのは $G^R$ と $G^A$ の **積** である。
-
-$$
-\big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
-\hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C24}
-$$
-
-$G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラムでは、二本の線を結ぶ不純物の線）が残る。これがバーテックス補正である。
-
-<del>もし式 (C24) で等号としてしまうと（一本ずつの平均の積にすると）、式 (C20) の形になる。このままでは、一体問題において不純物は抵抗を与えない（$\delta\to 0$ で発散する）という結論になってしまう。</del>
-<span style="color:#d00">もし式 (C24) で等号としてしまうと（一本ずつの平均の積にすると）、$\langle G\rangle$ に入る自己エネルギーの幅 $\hbar/2\tau$（[寿命](#averaged-g)）だけが残り、寿命 $\tau$ の Drude の式になる（[Drude の式](#drude)）。失うのは、寿命 $\tau$ と輸送の緩和時間の違い（前方への散乱は電流をあまり減らさないこと。[バーテックス補正](#vertex-correction)）である。平均をまったく取らずに無限小の $\delta$ のままにすると、式 (C20) は $\delta\to0$ で発散する。</span>
-
-## 不純物の配置についての平均 {#impurity-average}
-
-式 (C24) の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のグリーン関数である。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
+<span style="color:#d00">となる。まず第 1 項を調べる（第 2 項は [Drude の式](#drude) の節で見積もる）。</span>
+グリーン関数の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のグリーン関数である。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
 平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
 不純物の位置は乱雑なので、位相 $e^{-i{\bf q}\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、残るのは同じ不純物 $j$ について位相が消える組だけである:
 
 $$
 \big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
-\tag{C25}
+\tag{C24}
 $$
 
 （${\bf q}=0$ の成分は一様なエネルギーのずれで、$E_F$ に繰り込む。同じ不純物に三回以上かかる項は、不純物が弱いとして落とす。）
-これを使って式 (C23) を展開する。平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
+これを使って式 (C23) の<span style="color:#d00">第 1 項</span>を展開する。平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
 
 $$
 \begin{aligned}
 {\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]
 &=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^A_{ {\bf k}'{\bf k}}
 \end{aligned}
-\tag{C26}
+\tag{C25}
 $$
 
 である（$G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$。$E=E_F$ は書かない）。$G^R=(E-H_0-V+i\delta)^{-1}$ を $V$ について展開すると
@@ -354,11 +338,11 @@ $$
 G^R_{ {\bf k}{\bf k}'}={}&G^R_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^R_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^R_0({\bf k}')\\
 &+\sum_{ {\bf k}_1}G^R_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^R_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^R_0({\bf k}')+\cdots
 \end{aligned}
-\tag{C27}
+\tag{C26}
 $$
 
 である。ここで $G^R_0({\bf k})=1/(E-\varepsilon_{\bf k}+i\delta)$、$\varepsilon_{\bf k}=\hbar^2k^2/2m$、$V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$ で、$G^A$ も同様（$G^A_0({\bf k})=1/(E-\varepsilon_{\bf k}-i\delta)$）である。
-これを式 (C26) に入れて平均する。$V$ について 1 次の項は ${\bf q}=0$ の成分だけが残り、$E_F$ に繰り込まれている。2 次の項は、二つの $V$ がどこにあるかで三つに分かれ、式 (C25) を使うと
+これを式 (C25) に入れて平均する。$V$ について 1 次の項は ${\bf q}=0$ の成分だけが残り、$E_F$ に繰り込まれている。2 次の項は、二つの $V$ がどこにあるかで三つに分かれ、式 (C24) を使うと
 
 $$
 \begin{aligned}
@@ -370,7 +354,7 @@ $$
 &\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^R_0({\bf k}')\,G^A_0({\bf k}')\,v_x({\bf k}')\\
 &\qquad+O(V^4)
 \end{aligned}
-\tag{C28}
+\tag{C27}
 $$
 
 となる。ここで $\Sigma^{R}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^R_0({\bf k}_1)$（$\Sigma^A_2$ は $G^R_0$ を $G^A_0$ にしたもの）である。
@@ -383,7 +367,16 @@ $V$ について高次の項も同じで、$V$ の積の平均は対の平均の
 - $G^R$ と $G^A$ を結ぶ線: バーテックス補正になる（[バーテックス補正](#vertex-correction) の節）。
 - 交差する線: 弱局在の補正になる（ここでは扱わない）。
 
-式 (C24) で等号とすることは、$G^R$ と $G^A$ を結ぶ線（式 (C28) の第 4 項とその高次）を落とすことにあたる。
+<span style="color:#d00">式 (C27) の第 4 項が示すように、平均を取るのは $G^R$ と $G^A$ の **積** である:</span>
+
+$$
+\big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
+\hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}
+\tag{C28}
+$$
+
+<span style="color:#d00">$G^R$ と $G^A$ が同じ不純物で散乱される相関（二本の線を結ぶ不純物の線）が残る。これがバーテックス補正である。</span>
+式 (C28) で等号とすることは、$G^R$ と $G^A$ を結ぶ線（式 (C27) の第 4 項とその高次）を落とすことにあたる。
 
 ## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
 
@@ -394,7 +387,7 @@ $$
 \tag{C29}
 $$
 
-一本の $G$ の中で結ぶ線を、互いに交差しないもの（Born 近似）まで取ると、式 (C25) から自己エネルギーは
+一本の $G$ の中で結ぶ線を、互いに交差しないもの（Born 近似）まで取ると、式 (C24) から自己エネルギーは
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
@@ -402,7 +395,7 @@ $$
 \tag{C30}
 $$
 
-で（式 (C28) の $\Sigma^R_2$ の和を積分にしたもの）、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
+で（式 (C27) の $\Sigma^R_2$ の和を積分にしたもの）、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
 
 $$
 \begin{aligned}
@@ -416,7 +409,7 @@ $1/\tau$ はフェルミの黄金則による散乱の速さそのものであ�
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C24) で等号とした近似（$G^R$ と $G^A$ を結ぶ線を落とす近似）でも、$\bar G$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
+式 (C28) で等号とした近似（$G^R$ と $G^A$ を結ぶ線を落とす近似）でも、$\bar G$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
@@ -428,7 +421,7 @@ $$
 \tag{C32}
 $$
 
-で、これは式 (C20) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C23) は
+で、これは式 (C20) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C23) の<span style="color:#d00">第 1 項</span>は
 
 $$
 \sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
@@ -436,11 +429,12 @@ $$
 $$
 
 となり、式 (C22) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
+<span style="color:#d00">式 (C23) の第 2 項では、$\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ の二つの極がともに実軸の下にあるので、式 (C32) のように $\tau$ に比例して大きくなることがない。第 1 項に比べて $\hbar/(E_F\tau)$ の程度だけ小さいので落とした。</span>
 素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均 (C24) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C30) と組になる近似）。
+積の平均 (C28) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C30) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -494,7 +488,7 @@ $T^3$ では、そのような周回路（$T^1$）が $k_x$、$k_y$、$k_z$ の�
 ## メモ: フェルミ面項とフェルミ海項 {#fermi-sea-surface}
 
 久保公式の静的な伝導度 $\sigma_{ij}$ を、重み $-\partial f/\partial E$ を持つ **フェルミ面項** と、重み $f(E)$ で占有状態全体を積分する **フェルミ海項** に分ける書き方がある（Středa の分け方。異常ホール効果の文献でよく使われる）。
-フェルミ海項は $i\leftrightarrow j$ について反対称なので、$\sigma_{xx}$ には効かない。式 (C23) はフェルミ面項のうち $G^RG^A$ の部分である。
+フェルミ海項は $i\leftrightarrow j$ について反対称なので、$\sigma_{xx}$ には効かない。式 (C23) の<span style="color:#d00">第 1 項</span>は、フェルミ面項のうち $G^RG^A$ の部分である。
 
 ただし、この分け方は一つに決まらない。部分積分で一方を他方に書き直せるからである。
 式 (C21) では、占有領域の積分（Drude の $n/m$）とフェルミ面での $\overline{v_x^2}D(E_F)$ が同じ量だった。
