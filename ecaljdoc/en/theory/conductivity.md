@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8e94a0bf4 (source blob 00a9f35e4).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 64f95e748 (source blob 17b7082a7).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -70,7 +70,7 @@ $$
 > Note why a commutator appears in Eq. (C3) and elsewhere. This can be understood from the fact that differentiating $\hat A_{\rm H}(t)$ with respect to $t$ gives a commutator, $d\hat A_{\rm H}/dt=(i/\hbar)[\hat H_0,\hat A]_{\rm H}$.
 > Time evolution is a unitary rotation in Hilbert space, and an infinitesimal rotation $e^{i\epsilon\hat G}$ changes an operator by $e^{i\epsilon\hat G}\hat A\,e^{-i\epsilon\hat G}\simeq\hat A+i\epsilon[\hat G,\hat A]$.
 > When the perturbation $-\hat B F$ is added, an infinitesimal rotation by $\hat B$ is added to the time evolution, so the change of $\hat A$ is the commutator with $\hat B$.
-> This is the same as how a $3\times 3$ Hermitian (real symmetric) matrix $M$ transforms under an infinitesimal spatial rotation $R=e^{\epsilon L}\simeq 1+\epsilon L$ ($L$ antisymmetric): $RMR^{T}\simeq M+\epsilon[L,M]$.
+> This is the same as how a $3\times 3$ Hermitian (real symmetric) matrix $M$ transforms under an infinitesimal spatial rotation $R=e^{i\epsilon L}\simeq 1+i\epsilon L$ ($L$ Hermitian): $RMR^{\dagger}\simeq M+i\epsilon[L,M]$.
 
 ### Response to an electric field: the Kubo formula {#response-to-field}
 
