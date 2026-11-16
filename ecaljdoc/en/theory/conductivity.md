@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b5f170115 (source blob fb698783d).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b0b21a1e3 (source blob 0fa983e4b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -505,3 +505,43 @@ A weak coupling only changes the Fermi surface and the Berry phase continuously;
 In a finite sample with surfaces, however, as many surface states as the Chern number cross the gap and pass through $E_F$ (bulk-edge correspondence). If the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the boundary is included.
 In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
 $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C17) moves it completely onto the Fermi surface.
+
+## Note: winding of a phase and the Thouless pump {#thouless-pump}
+
+**Essence**: Consider assigning a phase $\theta(x)$ to each point $x$ of a space $X$. What has meaning as a value is $e^{i\theta(x)}$, a point on the unit circle ($T^1$); $\theta$ itself is ambiguous by integer multiples of $2\pi$.
+If $X$ is a loop ($T^1$), the winding number, the number of times $e^{i\theta}$ goes around the unit circle while $x$ goes around once,
+
+$$
+w=\frac{1}{2\pi}\oint d\theta
+\tag{C39}
+$$
+
+is an integer. $\theta$ need not return to its starting value after one turn; only $e^{i\theta}$ must, so $\theta$ may shift by $2\pi w$.
+The winding number does not change when the assignment is varied continuously (an integer cannot change continuously). It changes only when the variation passes through a point where $e^{i\theta}$ cannot be defined (a point where the amplitude vanishes, a singularity).
+
+Here it matters whether the loop can be shrunk. For a loop in a plane, a nonzero winding number implies a singularity (a vortex core) inside the loop, because shrinking the loop to a point must bring the winding number to zero, so the shrinking must pass through a singularity.
+A loop wrapping a torus (the $T^1$ of the [preliminary](#fermi-sea-surface)), however, cannot be shrunk to a point. So it can have a nonzero winding number without any singularity anywhere. This is the essence of topological quantization.
+
+**Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
+To each time $t$ we assign the phase obtained by integrating the Berry connection of the periodic parts $|u_{nk}(t)\rangle$ of the occupied Bloch functions over the $T^1$ of $k$ (the one-dimensional Brillouin zone), the Zak phase. The polarization is written with it (R. D. King-Smith and D. Vanderbilt, Phys. Rev. B **47**, 1651 (1993)):
+
+$$
+\gamma(t)=\sum_{n\in{\rm occ}}\oint_{T^1}i\langle u_{nk}(t)|\partial_k u_{nk}(t)\rangle\,dk,\qquad
+P(t)=-\frac{e}{2\pi}\,\gamma(t)
+\tag{C40}
+$$
+
+(the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C37)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
+Under an adiabatic variation, the current is $dP/dt$, and the charge passing a unit-cell boundary in one cycle is
+
+$$
+Q=\int_0^T\frac{dP}{dt}\,dt=-\frac{e}{2\pi}\big[\gamma(T)-\gamma(0)\big]=-eC
+\tag{C41}
+$$
+
+($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C39) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
+
+No singularity appears here. The gap stays open, and $|u_{nk}(t)\rangle$ is smooth in $(k,t)$. The integer comes only from $t$ being periodic, so that the loop cannot be shrunk.
+$C$ is also the Chern number on the $T^2$ formed by $(k,t)$, a quantity of the same kind as $C_1^z$ in Eq. (C35) with $k_y$ replaced by $t$. Seen in a larger parameter space, it counts how many times the loop traced by the Hamiltonian goes around a gap-closing point lying outside the loop (in the Rice–Mele model, for example, $C=\pm 1$ when the circle traced by the dimerization and the sublattice potential difference encloses the point where both vanish).
+
+In a finite chain with ends, a charge $-eC$ is carried from one end to the other in one cycle. Since the bulk has a gap, this happens by edge-state levels crossing the gap ($C$ of them per cycle). This is the one-dimensional version of the bulk-edge correspondence. For the two-dimensional Hall conductivity too, making the sample a cylinder and threading a flux lets $k_y$ play the role of $t$, and the same argument holds (Laughlin's argument).
