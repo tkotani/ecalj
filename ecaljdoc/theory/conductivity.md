@@ -271,13 +271,53 @@ $$
 $$
 
 （${\bf q}=0$ の成分は一様なエネルギーのずれで、$E_F$ に繰り込む。同じ不純物に三回以上かかる項は、不純物が弱いとして落とす。）
-したがって $G^R=G^R_0+G^R_0VG^R_0+\cdots$、$G^A$ も同様に展開して積を平均すると、$V$ が二つずつ組になった項の和になる。ダイヤグラムでは、組になった二つの $V$ を不純物の線で結ぶ。線には次の三通りがある。
+これを使って式 (C19) を展開する。平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
+
+$$
+\begin{aligned}
+{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]
+&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^A_{ {\bf k}'{\bf k}}
+\end{aligned}
+\tag{C22}
+$$
+
+である（$G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$。$E=E_F$ は書かない）。$G^R=(E-H_0-V+i\delta)^{-1}$ を $V$ について展開すると
+
+$$
+\begin{aligned}
+G^R_{ {\bf k}{\bf k}'}={}&G^R_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^R_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^R_0({\bf k}')\\
+&+\sum_{ {\bf k}_1}G^R_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^R_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^R_0({\bf k}')+\cdots
+\end{aligned}
+\tag{C23}
+$$
+
+である。ここで $G^R_0({\bf k})=1/(E-\varepsilon_{\bf k}+i\delta)$、$\varepsilon_{\bf k}=\hbar^2k^2/2m$、$V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$ で、$G^A$ も同様（$G^A_0({\bf k})=1/(E-\varepsilon_{\bf k}-i\delta)$）である。
+これを式 (C22) に入れて平均する。$V$ について 1 次の項は ${\bf q}=0$ の成分だけが残り、$E_F$ に繰り込まれている。2 次の項は、二つの $V$ がどこにあるかで三つに分かれ、式 (C21) を使うと
+
+$$
+\begin{aligned}
+&\Big\langle{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]\Big\rangle_{\rm imp}\\
+&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,\Sigma^R_2({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\,\Sigma^A_2({\bf k})\,G^A_0({\bf k})\\
+&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
+&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^R_0({\bf k}')\,G^A_0({\bf k}')\,v_x({\bf k}')\\
+&\qquad+O(V^4)
+\end{aligned}
+\tag{C24}
+$$
+
+となる。ここで $\Sigma^{R}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^R_0({\bf k}_1)$（$\Sigma^A_2$ は $G^R_0$ を $G^A_0$ にしたもの）である。
+右辺の第 1 項は不純物の無い項、第 2 項と第 3 項は一本の $G$ の中の二つの $V$ を結んだ項（自己エネルギー $\Sigma_2$ が一つ挟まる）、第 4 項は $G^R$ の $V$ と $G^A$ の $V$ を結んだ項である。
+一本の $G$ の中の平均 $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$ は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残る。平均した後の $G$ が ${\bf k}$ について対角（並進対称）になるのはこのためである。
+
+$V$ について高次の項も同じで、$V$ の積の平均は対の平均の積の和になる。ダイヤグラムでは、組になった二つの $V$ を不純物の線で結ぶ。線には次の三通りがある。
 
 - 一本の $G$ の中で結ぶ線: 自己エネルギーになる（次節）。
 - $G^R$ と $G^A$ を結ぶ線: バーテックス補正になる（[バーテックス補正](#vertex-correction) の節）。
 - 交差する線: 弱局在の補正になる（ここでは扱わない）。
 
-式 (C20) で等号とすることは、$G^R$ と $G^A$ を結ぶ線を落とすことにあたる。
+式 (C20) で等号とすることは、$G^R$ と $G^A$ を結ぶ線（式 (C24) の第 4 項とその高次）を落とすことにあたる。
 
 ## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
 
@@ -285,7 +325,7 @@ $$
 
 $$
 \bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C22}
+\tag{C25}
 $$
 
 一本の $G$ の中で結ぶ線を、互いに交差しないもの（Born 近似）まで取ると、式 (C21) から自己エネルギーは
@@ -293,17 +333,17 @@ $$
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C23}
+\tag{C26}
 $$
 
-で、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
+で（式 (C24) の $\Sigma^R_2$ の和を積分にしたもの）、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
 
 $$
 \begin{aligned}
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C24}
+\tag{C27}
 $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
@@ -319,14 +359,14 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C25}
+\tag{C28}
 $$
 
 で、これは式 (C16) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C19) は
 
 $$
 \sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C26}
+\tag{C29}
 $$
 
 となり、式 (C18) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
@@ -334,7 +374,7 @@ $$
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均 (C20) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C23) と組になる近似）。
+積の平均 (C20) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C26) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -342,23 +382,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C27}
+\tag{C30}
 $$
 
-を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C25) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
+を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C28) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$、すなわち $\gamma=\tau_{\rm tr}/\tau$ を得る。ここで
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C28}
+\tag{C31}
 $$
 
-は輸送の緩和時間である。式 (C26) の片方の $v_x$ を $\Gamma_x$ に替えると
+は輸送の緩和時間である。式 (C29) の片方の $v_x$ を $\Gamma_x$ に替えると
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C29}
+\tag{C32}
 $$
 
 となる（自由電子では $ne^2\tau_{\rm tr}/m$）。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
