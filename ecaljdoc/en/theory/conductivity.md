@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3b3417d9e (source blob b00169ddd).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 6a297c4a0 (source blob e045900f6).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -167,7 +167,7 @@ $$
 \tag{C12}
 $$
 
-Here the delta functions are regarded as the limit $\delta\to+0$ of the Lorentzian $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ of width $\delta$ (the subscript $\delta$ is the $\delta$ in the denominator of Eq. (C11)). The case with finite $\delta$ is discussed later in Eqs. (C19) and (C20).
+Here the delta functions are regarded as the limit $\delta\to+0$ of the Lorentzian $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ of width $\delta$ (the subscript $\delta$ is the $\delta$ in the denominator of Eq. (C11)). A consideration keeping $\delta$ finite is needed; it is done later in Eqs. (C19) and (C20).
 This is fixed only by one-body quantities at the Fermi level $E_F$.
 Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ gives the Kubo–Greenwood formula
 
