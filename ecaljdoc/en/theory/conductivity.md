@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3bb33413d (source blob 6d050a427).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 28d49e750 (source blob bf8f3f987).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -660,6 +660,12 @@ $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by p
 Cutting it at $x=0$ into the half-plane $x\gt 0$, $k_x$ is no longer a good quantum number, and the states are labeled only by $k_y$ along the edge ($T^1$).
 On the edge there are $C$ states propagating in one direction only (chiral edge states); they disperse in $k_y$, cross the gap and pass through $E_F$.
 The Hall conductance of the sheet is $\sigma_{xy}=C\,e^2/h$, and this Hall current is carried by the edge states. This is the bulk-edge correspondence.
+
+> **Why there are $C$ edge states**: regard $k_y$ as the time $t$ of the [Thouless pump](#thouless-pump).
+> At fixed $k_y$, the problem is a one-dimensional insulator in $x$. With periodic boundary conditions, its occupied bands define the Zak phase $\gamma(k_y)$ and the polarization in $x$, $P(k_y)=-e\gamma(k_y)/2\pi$ (Eq. (C49) with $t$ read as $k_y$).
+> When $k_y$ goes once around the Brillouin zone, $\gamma$ advances by $2\pi C$ (the Chern number is the winding number of the Zak phase; Eq. (C50)). So one cycle of $k_y$ carries exactly $C$ electrons in $x$.
+> In the half-plane with an edge, the carried electrons can only accumulate at the edge (or leave it). Since the Hamiltonian returns to itself after one cycle of $k_y$, $C$ levels must have crossed $E_F$ in between. The bulk has a gap at $E_F$, so the crossing levels are localized at the edge, and their branches $E(k_y)$ cross the gap.
+> What is guaranteed is the net number (branches crossing upward minus those crossing downward); details of the surface can add or remove pairs of upward and downward branches, but the net $C$ does not change unless the bulk gap closes. The direction of crossing (the slope of $E(k_y)$) is the direction of the group velocity $v_y$, so the net motion is in one direction.
 
 **Stacked sheets**: The system B of Eq. (C48) is this sheet ($C=C_1^z=1$) stacked in $z$ with spacing $c$, so it is periodic in $z$ as well (period $c$; no metal). If the layers are weakly coupled, the Chern number $C_1^z$ of the cross-section $T^2(k_z)$ equals that of one sheet, and the Hall conductivity per unit volume is $e^2/h$ per sheet divided by $c$, i.e. $e^2/hc$.
 Cut it by one plane at $x=0$ into the half-infinite sample ($x\gt 0$, periodic in $y$ and $z$).
