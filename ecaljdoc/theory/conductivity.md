@@ -201,7 +201,7 @@ $$
 > $$
 >
 > となる（$1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$、$1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$ を使った。添字は固有状態の成分）。
-> 式 (C15) の一行目で $\hbar\omega=E_m-E_n$ となるエネルギーが励起エネルギーである（$n$ から $m$ への励起）。$\chi^R_{JJ}$ は、この励起に対して遅延型の形をしている（極 $\hbar\omega=E_m-E_n-i\delta$ は $\omega$ の下半面にある）。
+> 式 (C15) の一行目で $\hbar\omega=E_m-E_n$ となるエネルギーが励起エネルギーである（$n$ から $m$ への励起）。$\chi^R_{JJ}$ は、この励起に対して遅延型の形をしている（極 $\hbar\omega=E_m-E_n-i\delta$ は $\omega$ の下半面にある）。式 (C15) の最後の式変形は、この励起エネルギー $\hbar\omega=E_m-E_n$ を、遅延型のグリーン関数 $G^R(E+\hbar\omega)$ のエネルギー $E+\hbar\omega=E_m$（$E=E_n$）にすり替える形になっている。
 > これに $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
 >
 > $$
