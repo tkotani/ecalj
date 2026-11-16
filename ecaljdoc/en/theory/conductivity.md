@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 555d274fe (source blob aabe1b847).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 167179362 (source blob d6531a346).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -533,20 +533,7 @@ has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one look
 Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C37).
 
 The function $e^{i\theta(x,y,z)}$ on $T^3$, with functions that deform continuously into each other regarded as the same, is characterized only by the winding numbers $(w_x,w_y,w_z)$ on the loops ($T^1$) in three directions. What about closed surfaces ($T^2$)?
-The wave function is smooth wherever one looks. Even so, the phase cannot always be chosen as a single smooth function on the whole $T^2$. Cut the cross-section $T^2(k_z)$ open along the loop $k_y=0$ (the $T^1$ in the $k_x$ direction) into a cylinder, and choose a smooth phase on the cylinder. On the two sides of the cut ($k_y=0$ and $k_y=2\pi/b$, the same points) the states differ only by a phase: $|u_{(k_x,2\pi/b)}\rangle=e^{i\phi(k_x)}|u_{(k_x,0)}\rangle$.
-Then ${\bf a}$ differs by $\nabla\phi$ on the two sides of the cut, and Stokes' theorem gives
-
-$$
-\begin{aligned}
-\frac{1}{2\pi}\int_{T^2(k_z)}\Omega^z\,d^2k
-&=-\frac{1}{2\pi}\Big[\oint_{k_y=2\pi/b}-\oint_{k_y=0}\Big]a_x\,dk_x\\
-&=\frac{1}{2\pi}\oint d\phi=w
-\end{aligned}
-\tag{C41}
-$$
-
-The Chern number on the closed surface reduces to the winding number of the gluing phase $e^{i\phi(k_x)}$ on the loop ($T^1$) of the cut. If $w\neq 0$, although everything is smooth wherever one looks and there is no singularity, the phase cannot be made smooth on the whole $T^2$ however it is chosen (the cut cannot be removed). That an integer appears although everything is smooth wherever one looks is the same as in Eq. (C40).
-$T^3$ has three kinds of closed surfaces in different directions, so there are three Chern numbers $(C^x,C^y,C^z)$, which give the ${\bf G}$ of Eq. (C35).
+$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C^x,C^y,C^z)$ on them, which give the ${\bf G}$ of Eq. (C35).
 When there is a Fermi surface, its topology also matters (for example, the Fermi surface of a closed pocket cannot have a Chern number unless there is a band degeneracy inside), but we do not go into it here.
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
@@ -555,7 +542,7 @@ To each time $t$ we assign the phase obtained by integrating the Berry connectio
 $$
 \gamma(t)=\sum_{n\in{\rm occ}}\oint_{T^1}i\langle u_{nk}(t)|\partial_k u_{nk}(t)\rangle\,dk,\qquad
 P(t)=-\frac{e}{2\pi}\,\gamma(t)
-\tag{C42}
+\tag{C41}
 $$
 
 (the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C37)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
@@ -563,7 +550,7 @@ Under an adiabatic variation, the current is $dP/dt$, and the charge passing a u
 
 $$
 Q=\int_0^T\frac{dP}{dt}\,dt=-\frac{e}{2\pi}\big[\gamma(T)-\gamma(0)\big]=-eC
-\tag{C43}
+\tag{C42}
 $$
 
 ($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C39) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
