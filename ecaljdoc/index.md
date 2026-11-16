@@ -14,7 +14,7 @@ hero:
       text: GetStarted with AI!
       link: /manual/getstartedAI
     - theme: alt
-      text: What's new (2026-10)
+      text: What's new (2026-11)
       link: /manual/whatsnew
     - theme: alt
       text: メインドキュメント

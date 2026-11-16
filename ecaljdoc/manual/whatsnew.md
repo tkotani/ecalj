@@ -3,6 +3,21 @@
 ecalj の新しい機能と、結果が変わる修正の要約。新しい順。詳しい記録（全部の変更）は ecalj の
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md)。各項目の説明はリンク先のページ。
 
+## 2026-11: 古い ctrlg は GW で止まる（直し方）
+
+::: warning 使い方が変わった（2026-11-14）
+`[gw]` の `t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW` を必須にした。
+これらの無い古い `ctrlg.<sname>.toml` では、GW のプログラム（`gwsc` など）がその旨を表示して止まる。
+次の一行で足せる。足す値はそれまでのコードの既定値なので、**結果は変わらない**。
+
+```bash
+ctrlg_update.py ctrlg.<sname>.toml      # 元のファイルは ctrlg.<sname>.toml.bak_update に残る
+```
+
+古い `esmr`・`t_sigmakbt` は読まなくなり、`ctrlg_update.py` が `t_sigmaw` に換算する。
+キーの意味は [GW の設定](./gwinput.md)、温度のキーは [kBT](./kBT.md)。
+:::
+
 ## 最近の大きな話題（2026-09〜10）
 
 ### 温度と均し方は `t_tetrakbt` と `t_sigmaw` の 2 つだけ、LiTi₂O₄ の反復の結果（tf32・fp32・fp64）
