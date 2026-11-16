@@ -449,12 +449,15 @@ $T^3$ では、そのような周回路（$T^1$）が $k_x$、$k_y$、$k_z$ の�
 ブロッホ関数の周期部分 $|u_{n{\bf k}}\rangle$ のベリー接続とベリー曲率を
 
 $$
-{\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
-{\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k})
+\begin{aligned}
+&{\bf a}_n({\bf k})=i\langle u_{n{\bf k}}|\nabla_{\bf k}u_{n{\bf k}}\rangle,\qquad
+{\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k}),\\
+&\Omega_n^z=-2\,{\rm Im}\sum_{m\neq n}\frac{\langle u_{n{\bf k}}|\partial_{k_x}H_{\bf k}|u_{m{\bf k}}\rangle\langle u_{m{\bf k}}|\partial_{k_y}H_{\bf k}|u_{n{\bf k}}\rangle}{(E_{n{\bf k}}-E_{m{\bf k}})^2}
+\end{aligned}
 \tag{C33}
 $$
 
-とする。内因性の異常ホール伝導度は（符号は ${\bf\Omega}$ の向きの約束による）、$k_z$ ごとの断面に分けて
+とする（$H_{\bf k}=e^{-i{\bf k}\cdot{\bf r}}He^{i{\bf k}\cdot{\bf r}}$）。二行目は状態についての和の形で、久保公式からそのまま出る形である。内因性の異常ホール伝導度は（符号は ${\bf\Omega}$ の向きの約束による）、$k_z$ ごとの断面に分けて
 
 $$
 \begin{aligned}
@@ -465,6 +468,9 @@ $$
 $$
 
 と書ける。$T^2(k_z)$ は $k_z$ を止めたブリルアン域の断面、$S(k_z)$ はその断面でのポケットである。
+
+被積分関数 $\Omega_n^z$ は、どちらの項も位相の選び方によらない。位相を $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ と変えるとベリー接続は ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$ と変わるが、$\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$ だからである。式 (C33) の二行目でも、各状態の位相が分子で打ち消し合っている。位相の選び方に依るのは、ベリー接続 ${\bf a}_n$ だけである。
+バンドが縮退していると、縮退したバンドを混ぜる選び方があるので、$\Omega_n$ はバンドごとには決まらない。占有バンドについての和 $\sum_n\Omega_n$ は決まる。
 
 **第 1 項（バンド 1）**: 閉じた面 $T^2(k_z)$ の上の積分 $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$ はチャーン数で、整数である。バンド 1 にはギャップがあるので $k_z$ によらない。$T^2(k_z)$ は閉じた面なので、これを境界の上の積分には書き直せない。
 $k_z$ の積分は $2\pi/c$ を与えるので、第 1 項は $(e^2/h)\,C_1^z/c$ である。ブリルアン域を他の向きに巻く面のチャーン数 $C_1^x$、$C_1^y$ も合わせると
