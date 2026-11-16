@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3bbd4fc0 (source blob 3aeb6cfd1).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2de47412c (source blob 78789ee51).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -130,7 +130,7 @@ $$
 \tag{C9}
 $$
 
-and the only difference is in the second term. Subtracting the second line from the first gives
+and the only difference is in the second term:
 
 $$
 \Delta\sigma(\omega)=\frac{1}{i\omega\Omega}\Big[\chi^R_{JJ}(0)-\frac{ne^2\Omega}{m}\Big].
