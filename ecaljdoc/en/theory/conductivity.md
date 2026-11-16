@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 59aea94aa (source blob 772a544fb).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3f50268e7 (source blob 39bae6909).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -495,7 +495,7 @@ $$
 \tag{C38}
 $$
 
-is the transport relaxation time. Compared with $1/\tau$ of Eq. (C32), **the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand.** Forward scattering ($\theta\simeq0$) contributes to $1/\tau$ but hardly to $1/\tau_{\rm tr}$, while backward scattering ($\theta\simeq\pi$) contributes to $1/\tau_{\rm tr}$ with twice the weight. Hence $\tau_{\rm tr}\ge\tau/2$, and the stronger the forward scattering, the longer $\tau_{\rm tr}$ is than $\tau$. Replacing one $v_x$ in Eq. (C34) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C34) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
@@ -503,12 +503,25 @@ $$
 $$
 
 ($ne^2\tau_{\rm tr}/m$ for free electrons).
-Forward scattering ($\cos\theta\simeq 1$) hardly reduces the current, so what matters for the resistance is the scattering weighted by $1-\cos\theta$.
-The lifetime $\tau$ (fixed by the average of a single $G$) and $\tau_{\rm tr}$, which fixes the resistance (by the average of the product), differ in general.
-If $u$ is point-like ($u({\bf q})$ independent of ${\bf q}$), the average of $\cos\theta$ is zero, the vertex correction vanishes, and $\tau_{\rm tr}=\tau$.
-This result is the same as that of the Boltzmann equation.
 
-Adding diagrams with crossed impurity lines, instead of the ladder, gives the weak-localization correction (not treated here).
+## Two relaxation times: the lifetime $\tau$ and the transport relaxation time $\tau_{\rm tr}$ {#two-taus}
+
+In the theory of impurity scattering, the point that must be understood is the difference between the lifetime $\tau$ (Eq. (C32)) and the transport relaxation time $\tau_{\rm tr}$ (Eq. (C38)). Side by side, <strong>the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand.</strong>
+
+| | lifetime $\tau$ (Eq. (C32)) | transport relaxation time $\tau_{\rm tr}$ (Eq. (C38)) |
+| --- | --- | --- |
+| weight of the scattering | $1$ | $1-\cos\theta_{\bf kk'}$ |
+| where it comes from | the average of a single $G$ (self-energy; second and third terms of Eq. (C27)) | the average of the product of $G$ (sum of terms of the type of the fourth term of Eq. (C27)) |
+| time of what | the time an electron stays in the state ${\bf k}$; scattering in any direction loses ${\bf k}$ | the time in which the current (the direction of the momentum) is lost |
+| where it appears | the width $\hbar/\tau$ of the spectral function | the conductivity $\sigma_{xx}$ (Eq. (C39)) |
+
+- **Forward scattering** ($\theta\simeq0$) moves the electron to another state ${\bf k}'$, so it contributes to $1/\tau$, but it hardly changes the direction of the momentum, so it hardly contributes to $1/\tau_{\rm tr}$.
+- **Backward scattering** ($\theta\simeq\pi$) reverses the momentum, so it contributes to $1/\tau_{\rm tr}$ with twice the weight.
+- Hence, from $1-\cos\theta\le2$, $\tau_{\rm tr}\ge\tau/2$, and the stronger the forward scattering, the longer $\tau_{\rm tr}$ is than $\tau$.
+- If $u$ is point-like ($u({\bf q})$ independent of ${\bf q}$), the scattering does not depend on the direction, the average of $\cos\theta$ is zero, and $\tau_{\rm tr}=\tau$ (the vertex correction vanishes). The more $u({\bf q})$ is concentrated at small ${\bf q}$, as for screened Coulomb impurities, the stronger the forward scattering, and $\tau_{\rm tr}\gg\tau$ is possible.
+
+If each $G$ is averaged first and then multiplied, as in Eq. (C29), $\sigma_{xx}$ contains $\tau$ (Eq. (C34)). To obtain the correct $\tau_{\rm tr}$, the average of the product of $G$ (the vertex correction) is needed. This is what it means that the average is taken of the product of $G$.
+Eq. (C39) with $\tau_{\rm tr}$ is the same as the result of the Boltzmann equation.
 
 ## Note: integrals over the Brillouin zone and its topology $T^3$ {#bz-topology}
 
