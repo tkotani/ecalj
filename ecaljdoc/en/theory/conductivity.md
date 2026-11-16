@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0b25a490f (source blob f9d268a4d).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f961f55a6 (source blob 0b17e9af0).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -553,6 +553,24 @@ Thinking of it in simplified form, it suffices to focus on the case in which a p
 
 The phase is assumed to vary continuously and smoothly. However, singular lines (vortex lines; the limit of the phase depends on the direction of approach, so the phase is undefined there, and it goes around by an integer multiple of $2\pi$ on a loop around them; for example $\theta=\arg(x+iy)$ on the $z$ axis) and singular points where bands are degenerate are also considered in some cases. In three dimensions, a singularity of the phase is generically a line.
 
+The number of times $e^{i\theta}$ goes around the unit circle along a loop $L$ is the winding number
+
+$$
+w_L=\frac{1}{2\pi}\oint_L\nabla\theta\cdot d{\bf r}
+\tag{C41}
+$$
+
+(an integer). It does not change under continuous deformation, except when a singular line is crossed. So a loop that can be shrunk to a point has winding number 0. In ordinary three-dimensional space, a nonzero winding number means that the loop winds around a singular line.
+On $T^3$, however, the loops ($T^1$) winding in the $x$, $y$, $z$ directions cannot be shrunk, so winding numbers are possible without any singular line. For example, in a periodic box with edges $a$, $b$, $c$,
+
+$$
+e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac{w_y}{b},\frac{w_z}{c}\Big)
+\tag{C42}
+$$
+
+is smooth wherever one looks, yet has the winding numbers $(w_x,w_y,w_z)$, which form a reciprocal lattice vector. This is the essence of topological quantization.
+For wave functions (reading $(x,y,z)$ as ${\bf k}$), the winding number of a gauge transformation $e^{i\phi({\bf k})}$ corresponds to this (the $w$ of Eq. (C47) below). Moreover, the phase may not be choosable as a single smooth function over a whole closed $T^2$; the winding number of the mismatch is the Chern number (Eqs. (C44) and (C45) below). With a Fermi surface, the topology of the Fermi surface also matters (for example, a closed pocket Fermi surface cannot carry a Chern number unless a band degeneracy is inside), but we do not go into it here.
+
 ## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
 
 The static conductivity $\sigma_{ij}$ of the Kubo formula is sometimes split into a **Fermi-surface term**, with the weight $-\partial f/\partial E$, and a **Fermi-sea term**, integrated over all occupied states with the weight $f(E)$ (Středa's split; often used in the literature on the anomalous Hall effect).
@@ -573,7 +591,7 @@ $$
 {\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k}),\\
 &\Omega_n^z=-2\,{\rm Im}\sum_{m\neq n}\frac{\langle u_{n{\bf k}}|\partial_{k_x}H_{\bf k}|u_{m{\bf k}}\rangle\langle u_{m{\bf k}}|\partial_{k_y}H_{\bf k}|u_{n{\bf k}}\rangle}{(E_{n{\bf k}}-E_{m{\bf k}})^2}
 \end{aligned}
-\tag{C41}
+\tag{C43}
 $$
 
 ($H_{\bf k}=e^{-i{\bf k}\cdot{\bf r}}He^{i{\bf k}\cdot{\bf r}}$). The second line is the form as a sum over states, which follows directly from the Kubo formula.
@@ -584,12 +602,12 @@ $$
 \sigma_{xy}&=\frac{e^2}{\hbar}\sum_n\int_{\rm occ}\frac{d^3k}{(2\pi)^3}\,\Omega_n^z\\
 &=\frac{e^2}{h}\,\frac{1}{2\pi}\int dk_z\,\Big[\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k+\frac{1}{2\pi}\int_{S(k_z)}\Omega_2^z\,d^2k\Big]
 \end{aligned}
-\tag{C42}
+\tag{C44}
 $$
 
 where $T^2(k_z)$ is the cross-section of the Brillouin zone at fixed $k_z$ and $S(k_z)$ the cross-section of the pocket in that plane.
 
-The integrand $\Omega_n^z$ does not depend on the choice of phases, in either term. Changing the phase as $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes the Berry connection as ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$, but $\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$. In the second line of Eq. (C41), too, the phase of each state cancels in the numerator. Only the Berry connection ${\bf a}_n$ depends on the choice of phases.
+The integrand $\Omega_n^z$ does not depend on the choice of phases, in either term. Changing the phase as $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes the Berry connection as ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$, but $\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$. In the second line of Eq. (C43), too, the phase of each state cancels in the numerator. Only the Berry connection ${\bf a}_n$ depends on the choice of phases.
 When bands are degenerate, there are choices that mix the degenerate bands, so $\Omega_n$ is not determined band by band. The sum over the occupied bands, $\sum_n\Omega_n$, is determined.
 
 **First term (band 1)**: The integral on the closed surface $T^2(k_z)$, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since $T^2(k_z)$ is closed, this cannot be rewritten as an integral over a boundary.
@@ -598,7 +616,7 @@ The $k_z$ integral gives $2\pi/c$, so the first term is $(e^2/h)\,C_1^z/c$. Toge
 $$
 \sigma_{ij}^{(1)}=\frac{e^2}{2\pi h}\,\epsilon_{ijl}\,G_l,\qquad
 {\bf G}=2\pi\Big(\frac{C_1^x}{a},\frac{C_1^y}{b},\frac{C_1^z}{c}\Big)
-\tag{C43}
+\tag{C45}
 $$
 
 where ${\bf G}$ is a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
@@ -607,7 +625,7 @@ where ${\bf G}$ is a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Ph
 
 $$
 \int_{S(k_z)}\Omega_2^z\,d^2k=\oint_{\partial S(k_z)}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2(k_z)
-\tag{C44}
+\tag{C46}
 $$
 
 The loop $\partial S(k_z)$ is the Fermi surface cut at $k_z$ (the cyclotron orbit in a magnetic field along $z$), and $\gamma_2(k_z)$ is the Berry phase on it.
@@ -615,17 +633,17 @@ From the states on the Fermi surface alone, however, $\gamma_2(k_z)$ is fixed on
 
 $$
 \gamma_2(k_z)\to\gamma_2(k_z)-2\pi w
-\tag{C45}
+\tag{C47}
 $$
 
 ($w$ is the integer number of times $\phi$ winds by $2\pi$ around the loop). Which $w$ is right (which gauge connects smoothly inside $S(k_z)$) cannot be decided without looking at the states inside the Fermi surface.
 
-In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C43) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
-As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C42) gives
+In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C45) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
+As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C44) gives
 
 $$
 \sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{hc}
-\tag{C46}
+\tag{C48}
 $$
 
 and this difference cannot be told from the Fermi surface. The extreme case is a three-dimensional quantum Hall insulator, in which $S$ is empty (no Fermi surface) but $\sigma_{xy}=C_1^z e^2/hc$.
@@ -636,36 +654,7 @@ In a finite sample with surfaces, however, as many surface states as the Chern n
 In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
 $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C21) moves it completely onto the Fermi surface.
 
-## Note: winding of a phase and the Thouless pump {#thouless-pump}
-
-**Essence**: Consider assigning a phase factor $e^{i\theta(x,y,z)}$ to each point $(x,y,z)$ of a three-dimensional space $X$. What has meaning as a value is the point $e^{i\theta}$ on the unit circle ($T^1$); $\theta$ itself is ambiguous by integer multiples of $2\pi$.
-The winding number, the number of times $e^{i\theta}$ goes around the unit circle while going once around a loop $L$ in $X$,
-
-$$
-w_L=\frac{1}{2\pi}\oint_L\nabla\theta\cdot d{\bf r}
-\tag{C47}
-$$
-
-is an integer. $\theta$ need not return to its starting value after one turn; only $e^{i\theta}$ must, so $\theta$ may shift by $2\pi w_L$.
-The winding number does not change when the assignment or the loop is varied continuously (an integer cannot change continuously). It changes only when the variation passes through a place where $e^{i\theta}$ cannot be defined (where the amplitude vanishes, a singularity).
-Note in particular that if the loop can be shrunk to a point (without passing a singularity), the winding number can only be zero: on a loop shrunk to a point $\theta$ is constant and the winding number is zero, and the winding number does not change while shrinking.
-
-Here it matters whether the loop can be shrunk. If $X$ is ordinary three-dimensional space, every loop can be shrunk to a point. So a loop with a nonzero winding number must pass a singularity while being shrunk; that is, it winds around a singularity (a vortex line; in three dimensions it is a line).
-If $X$ is $T^3$ (a periodic box; see [the topology of the Brillouin zone](#bz-topology)), however, the loops ($T^1$) winding in the $x$, $y$, $z$ directions cannot be shrunk to a point. So $X$ can have three winding numbers $(w_x,w_y,w_z)$ without any singularity anywhere. For example, in a periodic box with sides $a$, $b$, $c$,
-
-$$
-e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac{w_y}{b},\frac{w_z}{c}\Big)
-\tag{C48}
-$$
-
-has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one looks and has no singularity. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C43)). This is the essence of topological quantization.
-
-Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C45).
-
-The function $e^{i\theta(x,y,z)}$ on $T^3$, with functions that deform continuously into each other regarded as the same, is characterized only by the winding numbers $(w_x,w_y,w_z)$ on the loops ($T^1$) in three directions. What about closed surfaces ($T^2$)?
-The phase of the wave function, though smooth wherever one looks, may not be choosable as a single smooth function over the whole $T^2$. The winding number of the mismatch in that case is the Chern number ($C_1^z$ after Eq. (C42)).
-$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C_1^x,C_1^y,C_1^z)$ on them, which give the ${\bf G}$ of Eq. (C43).
-When there is a Fermi surface, its topology also matters (for example, the Fermi surface of a closed pocket cannot have a Chern number unless there is a band degeneracy inside), but we do not go into it here.
+## Note: the Thouless pump {#thouless-pump}
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
 To each time $t$ we assign the phase obtained by integrating the Berry connection of the periodic parts $|u_{nk}(t)\rangle$ of the occupied Bloch functions over the $T^1$ of $k$ (the one-dimensional Brillouin zone), the Zak phase. The polarization is written with it (R. D. King-Smith and D. Vanderbilt, Phys. Rev. B **47**, 1651 (1993)):
@@ -676,7 +665,7 @@ P(t)=-\frac{e}{2\pi}\,\gamma(t)
 \tag{C49}
 $$
 
-(the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C45)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
+(the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C47)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
 Under an adiabatic variation, the current is $dP/dt$, and the charge passing a unit-cell boundary in one cycle is
 
 $$
@@ -684,9 +673,9 @@ Q=\int_0^T\frac{dP}{dt}\,dt=-\frac{e}{2\pi}\big[\gamma(T)-\gamma(0)\big]=-eC
 \tag{C50}
 $$
 
-($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C47) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
+($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C41) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
 
 No singularity appears here. The gap stays open, and $|u_{nk}(t)\rangle$ is smooth in $(k,t)$. The integer comes only from $t$ being periodic, so that the loop cannot be shrunk.
-$C$ is also the Chern number on the $T^2$ formed by $(k,t)$, a quantity of the same kind as $C_1^z$ in Eq. (C43) with $k_y$ replaced by $t$. Seen in a larger parameter space, it counts how many times the loop traced by the Hamiltonian goes around a gap-closing point lying outside the loop (in the Rice–Mele model, for example, $C=\pm 1$ when the circle traced by the dimerization and the sublattice potential difference encloses the point where both vanish).
+$C$ is also the Chern number on the $T^2$ formed by $(k,t)$, a quantity of the same kind as $C_1^z$ in Eq. (C45) with $k_y$ replaced by $t$. Seen in a larger parameter space, it counts how many times the loop traced by the Hamiltonian goes around a gap-closing point lying outside the loop (in the Rice–Mele model, for example, $C=\pm 1$ when the circle traced by the dimerization and the sublattice potential difference encloses the point where both vanish).
 
 In a finite chain with ends, a charge $-eC$ is carried from one end to the other in one cycle. Since the bulk has a gap, this happens by edge-state levels crossing the gap ($C$ of them per cycle). This is the one-dimensional version of the bulk-edge correspondence. For the two-dimensional Hall conductivity too, making the sample a cylinder and threading a flux lets $k_y$ play the role of $t$, and the same argument holds (Laughlin's argument).
