@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 915ea8d08 (source blob c68619629).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit df845e5c1 (source blob 4727f7d7b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -121,7 +121,7 @@ $$
 This is the result of the Kubo formula. What fixes the dissipation (Joule heat) is the real part of $\sigma$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees. This is an inductance effect, not due to a magnetic field but a kinetic inductance from the inertia of the electrons; the energy is stored as the kinetic energy of the electrons).
 
 Eq. (C8) can also be written as $\sigma(\omega)=\big[\chi^R_{JJ}(\omega)-ne^2\Omega/m\big]/(i\omega\Omega)$. If the electric field is put in as $-\Omega\,{\bf P}\cdot{\bf E}$ (${\bf P}$ the polarization) and partial integration is used, the diamagnetic term $ne^2\Omega/m$ is replaced by $\chi^R_{JJ}(0)$, giving $\sigma(\omega)=\big[\chi^R_{JJ}(\omega)-\chi^R_{JJ}(0)\big]/(i\omega\Omega)$ (H. Kusunose, *Electron Theory of Spin-Orbit-Coupled Physics* (Kodansha, 2019, in Japanese), §1.3, Eqs. (1.106)–(1.109); there $\Pi_{\mu\nu}=\chi^R_{JJ}$ and $V=\Omega$).
-The two agree when $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$, that is, when in the static limit the paramagnetic current response exactly cancels the diamagnetic term. This holds when the system is mixing (ergodic), with $\delta\to+0$ taken after the thermodynamic limit. It does in a system with impurities (the setting of this document).
+The two agree when $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$, that is, when in the static limit the paramagnetic current response exactly cancels the diamagnetic term. In a system with impurities (the setting of this document), this is so if the system is first made infinitely large and the quantities are converted to per unit volume, and only then $\delta\to+0$ is taken.
 For free electrons without impurities, $\hat J^0_x$ commutes with $\hat H_0$ and $\chi^R_{JJ}=0$, so Eq. (C8) gives $\sigma=(i/\omega)\,ne^2/m$ (the Drude weight), while the replaced form gives 0. Eq. (C8) does not assume mixing.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
