@@ -166,6 +166,7 @@ $$
 $$
 
 となる。
+<span style="color:#d00">ここでのデルタ関数は、幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$（添字の $\delta$ は式 (C11) の分母の $\delta$）の $\delta\to+0$ の極限と考える。$\delta$ を有限に残した場合は、後で式 (C19)、(C20) で議論する。</span>
 これは、フェルミ準位 $E_F$ での一体の量だけで決まる。
 $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直すと、Kubo–Greenwood の式
 
@@ -243,7 +244,7 @@ $$
 > となる。これは任意の $\omega$ と温度で成り立つ（$\omega\neq 0$ では光学伝導度を与える）。$\omega\to 0$、低温の極限では、式 (C12) と一致する。
 
 式 (C12) のデルタ関数の積の和（積分）は分かりにくいと思うので、以下で説明しておく。
-$i\delta$ を有限に残すと<span style="color:#d00">（ここでの $\delta$ は、久保公式の無限小とは別に、手で入れた幅である）</span>、式 (C12) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる。
+<del>$i\delta$ を有限に残すと、式 (C12) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる。</del><span style="color:#d00">$\delta$ を有限に残すと、式 (C12) のデルタ関数は $\delta_\delta$ のままになる。</span>
 $\sum_n\delta_\delta(E-E_n)$ は状態密度 $D(E)$（系全体の、エネルギーあたりの状態の数）である。
 
 すこし考察してみる。もし行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くで一様（平均 $\overline{|v_x|^2}$）なら
