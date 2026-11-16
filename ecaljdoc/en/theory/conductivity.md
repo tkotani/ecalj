@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 9a8ba5b8d (source blob 2fc278473).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c0ce7fce3 (source blob 0ff91547a).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -22,7 +22,7 @@ The number density of the impurities is $n_i$, and the Fourier transform of $u$ 
 What is observed is the average $\langle\cdots\rangle_{\rm imp}$ over the configurations $\{ {\bf R}_j \}$ of the impurities.
 
 **What is treated here is a one-body problem.** There is no interaction between the electrons; each electron moves independently in the static potential (C1) of the impurities.
-The Hamiltonian is the one-body $H=\hat{\bf p}^2/2m+V({\bf r})$, and $G^R(E)=1/(E-H+i\delta)$ below is its one-body Green function (the resolvent).
+The Hamiltonian is the one-body $H=\hat{\bf p}^2/2m+V({\bf r})$, and $G^R(E)=1/(E-H+i\delta)$ below is its one-body Green function.
 Once a configuration of the impurities is fixed, the problem is nothing but solving the one-body Schrödinger equation.
 The self-energy and the vertex correction that appear below look like many-body diagrams, but they all come from the average over the impurity configurations (not from interactions between the electrons).
 
@@ -262,7 +262,7 @@ If Eq. (C20) is taken as an equality (the product of the single averages), the r
 
 ## Average over the impurity configurations {#impurity-average}
 
-To compute the average of the product in Eq. (C20), we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the resolvent of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
+To compute the average of the product in Eq. (C20), we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the Green function of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
 The matrix element between plane waves $|{\bf k}\rangle$ is $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$.
 Since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), and only the pairs on the same impurity $j$, whose phases cancel, remain:
 
