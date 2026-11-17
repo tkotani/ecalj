@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c38b1155e (source blob 0ff49c04b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0e1473e8c (source blob 6ad00ab296cb).
 
 ::: info Overview
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -574,7 +574,7 @@ e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac
 \tag{C42}
 $$
 
-is smooth wherever one looks, yet has the winding numbers $(w_x,w_y,w_z)$, which form a reciprocal lattice vector. This is the essence of topological quantization.
+Advancing $x$ by $a$ advances the phase by $2\pi w_x$, and $e^{i\theta}$ comes back to itself (likewise for $y$ and $z$). So, as a function on the periodic box ($T^3$), it is smooth wherever one looks. Even so, going once around in the $x$ direction turns the phase by $2\pi w_x$, so it has the winding numbers $(w_x,w_y,w_z)$. ${\bf G}$ is a reciprocal lattice vector, and the winding numbers are its components (in units of $2\pi/a$, $2\pi/b$, $2\pi/c$). This is the essence of topological quantization.
 For wave functions (reading $(x,y,z)$ as ${\bf k}$), the winding number of a gauge transformation $e^{i\phi({\bf k})}$ corresponds to this (the $w$ of Eq. (C47) below). Moreover, the phase may not be choosable as a single smooth function over a whole closed $T^2$; the winding number of the mismatch is the Chern number (Eqs. (C44) and (C45) below). With a Fermi surface, the topology of the Fermi surface also matters (for example, a closed pocket Fermi surface cannot carry a Chern number unless a band degeneracy is inside), but we do not go into it here.
 
 ## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
