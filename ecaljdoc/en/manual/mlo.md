@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 751727a0c (source blob 9696c87b79cc).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit da880d81b (source blob 0b847cc56e06).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -60,8 +60,16 @@ The loss numbers come from `SRC/exec/mlo_losscheck.py <sample dir>`.
 
 ## Theory of MLO {#mlo-final}
 
-MLO is built from the resolution of the identity in the PMT basis, through the eigenstates
-$\Psi^{\mathrm{MTO}}$ of the chosen MTO subspace:
+The PMT basis consists of MTOs and APWs ($F_i$ of Eq. (1) in [Band-structure method of ecalj](../theory/pmt.md)). Symbols in this section:
+
+- $|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle$: the Bloch sums of the MTOs chosen for the model out of the PMT basis (the channels of `mlo_lm`; $n$ numbers the orbitals).
+  The space they span is called the **MTO subspace**
+- $|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle$: the eigenstates solved in the whole PMT basis (the first-principles bands), with energies $\varepsilon_{n'}$
+- $|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle$: the eigenstates solved only within the MTO subspace, with energies $\varepsilon^{\mathrm{MTO}}_{n''}$
+- $|F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle$: the MLOs to be made, one for each $|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle$
+
+MLO is built from the resolution of the identity by the PMT eigenstates, $\sum_{n'}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|=1$,
+through the MTO eigenstates $\Psi^{\mathrm{MTO}}$:
 
 $$
 |F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle
