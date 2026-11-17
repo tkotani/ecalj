@@ -49,7 +49,7 @@ features:
 
 > **加筆中**: このサイトにはまだ不完全な部分が多く、書き足している途中です。
 
-## For developers / 開発者へ
+## For developers
 
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).
