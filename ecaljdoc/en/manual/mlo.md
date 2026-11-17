@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit da880d81b (source blob 0b847cc56e06).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit d9d46c550 (source blob 0686dbcb65b0).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -107,7 +107,7 @@ e^{\mathrm{cut}}_{n''}&=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilo
 \tag{4}
 $$
 
-$\varepsilon_{\mathrm{CBM}}$ is the **global** conduction band minimum ($E_F$ in metals).
+$\varepsilon_{\mathrm{CBM}}$ is the conduction band minimum of the system ($E_F$ in metals).
 There are only two parameters, $\Delta$ and $w$ (**all in eV**), and there is no per-material tuning.
 
 $$
@@ -120,7 +120,7 @@ a fitting parameter. It means that a range of $\Delta$ above the band edge is re
 so **set it to the same value as the top of the evaluation window** (both are 2 eV by default).
 **$w$ is the only tuning knob**, and it is the one to change when the residual is large (§7).
 
-**Implemented as `mlo_method = 4`.** The global conduction band edge does not need to be computed anew;
+**Implemented as `mlo_method = 4`.** The conduction band edge of the system does not need to be computed anew;
 lmf has already obtained it in the BZ integration of the SCF and written it to `efermi.lmf`
 (`evtop` = VBM, `ecbot` = CBM. In metals it becomes the level just above $E_F$, so
 **one quantity covers both metals and insulators**).
