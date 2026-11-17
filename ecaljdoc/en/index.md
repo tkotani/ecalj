@@ -51,8 +51,6 @@ features:
 
 ## For developers
 
-ecalj is developed by T. Kotani and co-workers, with Claude Code since 2026-02.
-
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).
 Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistant guiding a user starts from [GetStarted with AI](/en/manual/getstartedAI).
