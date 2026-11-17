@@ -17,7 +17,6 @@ claude        # then say: "ecaljdoc/manual/getstartedAI.md を読んで、ecalj 
 
 AI がやりたいことを尋ね、ecalj を短く説明し、インストール、最初の計算（GaAs）、試験まで、あなたの言葉で案内します。
 クラスタ（`qsub` / `sbatch`）では、Claude Code がジョブを投入し、走っているジョブを見張ります（ログを見る、エラーに対応する、失敗したら再開する）。
-ecalj の文書と道具（`ctrlgenToml.py`、`Legacy2toml.py`、`testecalj`、`ecalj_auto` のスケジューラなど）も Claude Code と一緒に作っています。
 :::
 
 **AI へ**: このページの残りはあなたに向けて書いています。何をどの順に読み、人をどう案内するかを書きます。
