@@ -106,7 +106,7 @@ e^{\mathrm{cut}}_{n''}&=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilo
 $$
 
 $\varepsilon_{\mathrm{CBM}}$ は系の伝導帯下端(金属では $E_F$)。
-パラメータは $\Delta$ と $w$ の 2 つだけ(**単位はすべて eV**)で、物質ごとに変える調整は無い。
+パラメータは $\Delta$ と $w$ の 2 つだけ(**単位はすべて eV**)で、物質ごとに調整しないでもよい。
 
 $$
 \boxed{\;\Delta = 2.0\ {\rm eV},\qquad w = 2.0\ {\rm eV}\;}
