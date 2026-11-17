@@ -37,7 +37,7 @@ ecalj の文書と道具（`ctrlgenToml.py`、`Legacy2toml.py`、`testecalj`、`
 3. 入力: 物質ごとに TOML のファイル一つ、`ctrlg.<sname>.toml`。POSCAR（VASP の形式）から `vasp2ctrl` と `ctrlgenToml.py` で作る。
    設定のほとんどは自動。
 4. CPU（MPI）と NVIDIA の GPU（`--gpu`。GW の行列積の精度は `--prec=tf32|fp32|fp64` で選ぶ）で走る。
-5. オープンソース（AGPLv3）。小谷岳生と共同研究者が開発し、その多くを Claude Code と一緒に進めている。
+5. オープンソース（AGPLv3）。
 
 ## 何をどの順に読むか
 
