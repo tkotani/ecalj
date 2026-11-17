@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit acff70fe9 (source blob 872bf8c591cc).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 7a24dfdf0 (source blob 3a99ea57d1dd).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -135,10 +135,9 @@ There is no longer any need to switch `mlo_emax` between 0 / 5 / 7 / auto).
 
 ### `mlo_lm` — can in principle be automated
 
-`mlo_lm` (in `[mlo]`; which lm channels form the MTO subspace. Until 2026-09-17 it was
-named `mlo_lm` in `[blocks]`, and the old location and name are still read) is written
-per material. **It is not a tuning knob but the definition of the model itself**, and it is always needed for MLO
-regardless of the method.
+`mlo_lm` is a key written in `[mlo]`; it sets which lm channels form the MTO subspace.
+It is written per material. **It is not a tuning knob but the definition of the model itself**, and it is always needed for MLO
+regardless of the method. Until 2026-09-17 it was put in `[blocks]`; the old location is still read.
 
 **The default written by `gwinit`** (from 2026-09-25; before that all lines were commented out with `!`. f and `mlo_lm2` from 2026-10-01):
 
