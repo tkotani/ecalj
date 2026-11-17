@@ -7,11 +7,11 @@ import LangSwitch from './components/langswitch.vue'
 import { setupLightbox } from './lightbox.js'
 
 // The front-page logo with the origin of the name under it (2026-11-10):
-// ecalj = electron, calculation, japan; the letters of the name in a slightly heavier weight.
+// ecalj = electron calculation jig (jig: a tool that guides the work; until 2026-11-17 it was japan); the letters of the name in a slightly heavier weight.
 const heroImage = () => h('div', { class: 'ecalj-hero' }, [
   h('img', { src: withBase('/ecalj_logo.png'), alt: 'ecalj' }),
   h('p', { class: 'ecalj-origin' }, [
-    h('b', 'e'), 'lectron · ', h('b', 'cal'), 'culation · ', h('b', 'j'), 'apan',
+    h('b', 'e'), 'lectron ', h('b', 'cal'), 'culation ', h('b', 'j'), 'ig',
   ]),
 ])
 
