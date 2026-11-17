@@ -39,7 +39,6 @@ const sidebarRoot = [
       // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
       // { text: 'Spectrum function', link: '/manual/spec' },
       // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
-      { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
     ]
   },
   {
@@ -64,6 +63,7 @@ const sidebarRoot = [
     items: [
       { text: '試験の仕組み（testecalj）', link: '/manual/dev_testecalj' },
       { text: '実装メモ（GW の実装の詳細）', link: '/manual/dev_impl' },
+      { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
     ]
   },
   { text: 'ライセンス', link: '/manual/license' },
