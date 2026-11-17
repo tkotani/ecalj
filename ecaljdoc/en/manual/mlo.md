@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 330b9e995 (source blob dfee6a12379d).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 3017207c8 (source blob c0b96d14c8cc).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -118,7 +118,7 @@ $$
 Their roles are clearly different. **$\Delta$ is a declaration of "how far up you want agreement"**, not
 a fitting parameter. It means that a range of $\Delta$ above the band edge is required,
 so **set it to the same value as the top of the evaluation window** (both are 2 eV by default).
-**$w$ is the only tuning knob**, and it is the one to change when the residual is large (§7).
+$w$ is the one that may be changed when the fitting residual is large (§7). Basically, however, it is not tuned.
 
 **Implemented as `mlo_method = 4`.** The conduction band edge of the system does not need to be computed anew;
 lmf has already obtained it in the BZ integration of the SCF and written it to `efermi.lmf`
