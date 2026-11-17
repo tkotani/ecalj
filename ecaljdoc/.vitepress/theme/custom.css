@@ -109,8 +109,8 @@
   .VPHero .image-src { max-width: 240px; max-height: 240px; }
 }
 
-/* The nav-bar logo has no frame (2026-11-17): the image is transparent except the green lines, so the loop and the wavy
-   lines sit directly on the bar (the whiteboard frame of 2026-11-10 was removed). */
+/* The nav-bar logo has no frame (2026-11-17): green lines on plain white, so the loop and the wavy
+   lines run to the edges of the white square (the whiteboard frame of 2026-11-10 was removed). */
 
 /* front-page logo with the origin of the name just under it (2026-11-10): one centred column, the line small and quiet */
 .VPHero .ecalj-hero {
