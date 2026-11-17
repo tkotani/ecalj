@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit d9d46c550 (source blob 0686dbcb65b0).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 330b9e995 (source blob dfee6a12379d).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -108,7 +108,7 @@ e^{\mathrm{cut}}_{n''}&=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilo
 $$
 
 $\varepsilon_{\mathrm{CBM}}$ is the conduction band minimum of the system ($E_F$ in metals).
-There are only two parameters, $\Delta$ and $w$ (**all in eV**), and there is no per-material tuning.
+There are only two parameters, $\Delta$ and $w$ (**all in eV**), and they need not be tuned per material.
 
 $$
 \boxed{\;\Delta = 2.0\ {\rm eV},\qquad w = 2.0\ {\rm eV}\;}
