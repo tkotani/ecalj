@@ -61,6 +61,7 @@ const sidebarRoot = [
   {
     text: '開発者向けメモ',   // notes for developers, made from MD/ (2026-11-14)
     items: [
+      { text: 'TODO（開発の残り）', link: '/manual/dev_todo' },
       { text: '試験の仕組み（testecalj）', link: '/manual/dev_testecalj' },
       { text: '実装メモ（GW の実装の詳細）', link: '/manual/dev_impl' },
       { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
@@ -90,6 +91,7 @@ const enText: Record<string, string> = {
   '力と構造の緩和': 'Forces and relaxation',
   '開発者向けメモ': 'Notes for developers',
   '試験の仕組み（testecalj）': 'Tests (testecalj)',
+  'TODO（開発の残り）': 'TODO (what is left in development)',
   'その他の説明': 'Other notes',
   'バンドプロットの対称ライン: syml.&lt;sname&gt;': 'Symmetry lines for band plots: syml.&lt;sname&gt;',
   'GW で用いる行列要素': 'Matrix elements used in GW',
