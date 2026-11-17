@@ -58,8 +58,16 @@ FeMgO は真空層を持つスラブで空格子球が要る。**§5 に独立�
 
 ## MLO の理論 {#mlo-final}
 
-MLO は PMT 基底の恒等分解から、選んだ MTO 部分空間の固有状態
-$\Psi^{\mathrm{MTO}}$ を介して作る:
+PMT 基底は MTO と APW からなる（[ecalj のバンド計算法](../theory/pmt.md) の式 (1) の $F_i$）。この節の記号:
+
+- $|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle$: PMT 基底のうち、模型に選んだ MTO（`mlo_lm` のチャネル、$n$ は軌道の番号）の Bloch 和。
+  これらが張る空間を **MTO 部分空間**と呼ぶ
+- $|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle$: PMT 基底の全体で解いた固有状態（第一原理のバンド）。エネルギーは $\varepsilon_{n'}$
+- $|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle$: MTO 部分空間の中だけで解いた固有状態。エネルギーは $\varepsilon^{\mathrm{MTO}}_{n''}$
+- $|F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle$: 作る MLO。$|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle$ と一つずつ対応する
+
+MLO は、PMT 固有状態による恒等分解 $\sum_{n'}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|=1$ と、
+MTO 固有状態 $\Psi^{\mathrm{MTO}}$ を介して作る:
 
 $$
 |F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle
