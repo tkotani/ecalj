@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 80054ad8d (source blob d69872dcfbeb).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit acff70fe9 (source blob 872bf8c591cc).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -120,7 +120,7 @@ a fitting parameter. It means that a range of $\Delta$ above the band edge is re
 so **set it to the same value as the top of the evaluation window** (both are 2 eV by default).
 $w$ is the one that may be changed when the fitting residual is large (§7). Basically, however, it is not tuned.
 
-**Implemented as `mlo_method = 4`.** The conduction band edge of the system does not need to be computed anew;
+The conduction band edge of the system does not need to be computed anew;
 lmf has already obtained it in the BZ integration of the SCF and written it to `efermi.lmf`
 (`evtop` = VBM, `ecbot` = CBM. In metals it becomes the level just above $E_F$, so
 **one quantity covers both metals and insulators**).
@@ -130,8 +130,8 @@ $(\varepsilon_{\mathrm{ecbot}}-E_F)$
 If `efermi.lmf` is absent it falls back to $E_F$.
 
 The **per-material tuning parameters have become zero**
-(to former users: there is no longer any need to switch `mlo_emax` between 0 / 5 / 7 / auto).
-**`mlo_method = 4` is the default, so you do not even need to write it.**
+(to former users: this is implemented as `mlo_method = 4`, which is the default, so you do not even need to write it.
+There is no longer any need to switch `mlo_emax` between 0 / 5 / 7 / auto).
 
 ### `mlo_lm` — can in principle be automated
 
