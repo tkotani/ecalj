@@ -1,6 +1,6 @@
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 3017207c8 (source blob c0b96d14c8cc).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 80054ad8d (source blob d69872dcfbeb).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -129,7 +129,8 @@ $(\varepsilon_{\mathrm{ecbot}}-E_F)$
 (because `qplist.dat` sometimes uses `estaticav` as the zero).
 If `efermi.lmf` is absent it falls back to $E_F$.
 
-The **per-material tuning parameters have become zero**. There is no longer any need to switch `mlo_emax` between 0 / 5 / 7 / auto.
+The **per-material tuning parameters have become zero**
+(to former users: there is no longer any need to switch `mlo_emax` between 0 / 5 / 7 / auto).
 **`mlo_method = 4` is the default, so you do not even need to write it.**
 
 ### `mlo_lm` — can in principle be automated
